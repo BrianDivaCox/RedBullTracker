@@ -31,6 +31,14 @@
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, var(--rb-blue), var(--rb-red), var(--rb-yellow));
         }
+        
+        .version-tag {
+            background: #1e293b; color: var(--rb-yellow); font-size: 0.8rem; font-weight: 600;
+            padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color);
+            display: inline-block; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
+        }
+        .version-tag:hover { background: #334155; transform: scale(1.05); }
+
         header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
@@ -67,6 +75,26 @@
         .badge.sugar-free { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
         
+        /* 📜 Modal System */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(6, 8, 16, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal-content {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 30px; border-radius: 16px; max-width: 550px; width: 90%; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative;
+        }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .modal h2 { margin-bottom: 20px; color: #fff; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        .log-entry { margin-bottom: 20px; }
+        .log-version { font-weight: 700; color: var(--rb-yellow); font-size: 1.05rem; }
+        .log-date { font-size: 0.8rem; color: var(--text-muted); margin-left: 10px; }
+        .log-list { margin-top: 5px; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; }
+        .log-list li { margin-bottom: 4px; }
+
         footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border-color); }
     </style>
 </head>
@@ -74,6 +102,7 @@
 
 <div class="container">
     <header>
+        <div class="version-tag" onclick="openChangelog()">v3.1.0 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -96,13 +125,38 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal.</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.1.0</p>
     </footer>
 </div>
 
+<!-- 📜 CHANGELOG MODAL -->
+<div class="modal" id="changelog-modal" onclick="closeChangelog()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeChangelog()">&times;</span>
+        <h2>System Changelog</h2>
+        
+        <div class="log-entry">
+            <span class="log-version">v3.1.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Upgraded browser tracking engine to navigate Google API data redirections safely.</li>
+                <li>Added interactive Changelog Modal and integrated universal version tracking UI.</li>
+            </ul>
+        </div>
+        
+        <div class="log-entry">
+            <span class="log-version">v3.0.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Expanded spreadsheet core from local data arrays into full Google Sheets live API database sync.</li>
+                <li>Imported historical international variants (Japan Exclusives, Thailand Original Bottles, Philippines Supreme lineup)[cite: 1].</li>
+                <li>Added the vault of classic discontinued flavors (Cranberry, Silver Dry Lime, Plum Twist, Pomegranate)[cite: 1].</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <script>
-    // 🔗 REPLACE THIS STRING WITH YOUR GOOGLE WEB APP EXECUTION LINK
-    const SHEET_API_URL = "YOUR_DEPLOYED_WEB_APP_URL";
+    // Live execution web app token
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
     let currentFilter = 'all'; 
@@ -113,8 +167,14 @@
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
         
         try {
-            const response = await fetch(SHEET_API_URL);
-            if (!response.ok) throw new Error("API call down");
+            // Re-engineered cross-origin fetch sequence explicitly designed for Google Sheets redirects
+            const response = await fetch(SHEET_API_URL, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'omit'
+            });
+            
+            if (!response.ok) throw new Error("API stream handshaking error");
             
             flavors = await response.json();
             calculateStats();
@@ -124,8 +184,8 @@
             grid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
                     ❌ <b>Connection Blocked</b><br>
-                    <span style="font-size:0.9rem; color:var(--text-muted);">
-                        Check that your Google Sheet API web deployment URL is pasted correctly and permissions are set to 'Anyone'.
+                    <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
+                        Browser security blocked the direct read. Make sure you have updated your Google Apps Script code to include the 'Access-Control-Allow-Origin' headers and published a <b>New Version</b>.
                     </span>
                 </div>`;
         }
@@ -160,7 +220,6 @@
             const card = document.createElement('div');
             card.className = `flavor-card ${flavor.checked ? 'checked' : ''}`;
             
-            // Flags if a text string looks like a seasonal variant release
             const isSeasonal = flavor.name.toLowerCase().includes('winter') || flavor.name.toLowerCase().includes('summer') || flavor.name.toLowerCase().includes('spring');
 
             card.innerHTML = `
@@ -187,12 +246,14 @@
         renderGrid();
     };
 
+    window.openChangelog = function() { document.getElementById('changelog-modal').classList.add('open'); };
+    window.closeChangelog = function() { document.getElementById('changelog-modal').classList.remove('open'); };
+
     document.getElementById('search-input').addEventListener('input', (e) => { 
         searchQuery = e.target.value; 
         renderGrid(); 
     });
 
-    // Run network execution on bootstrap initialization
     fetchTrackerData();
 </script>
 </body>
