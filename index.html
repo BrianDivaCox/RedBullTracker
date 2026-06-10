@@ -47,12 +47,13 @@
         .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
         .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
-        .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
         .search-box { flex: 1; min-width: 260px; }
         .search-box input { width: 100%; padding: 10px 15px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 0.95rem; }
         .search-box input:focus { border-color: var(--rb-yellow); outline: none; box-shadow: 0 0 0 2px var(--accent-glow); }
         .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .btn:hover { border-color: var(--text-muted); }
         .btn.active { background: var(--rb-yellow); color: #000; font-weight: 600; border-color: var(--rb-yellow); }
 
         .flavor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -74,6 +75,7 @@
         .badge.discontinued-status { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
         .badge.sugar-free { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
         .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge.intl-status { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
         
         /* 📜 Modal System */
         .modal {
@@ -102,7 +104,7 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.1.0 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.2.0 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -119,62 +121,61 @@
             <button class="btn" onclick="filterFlavors('active', this)">Active</button>
             <button class="btn" onclick="filterFlavors('discontinued', this)">Discontinued</button>
             <button class="btn" onclick="filterFlavors('sf', this)">Sugar Free</button>
+            <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button>
         </div>
     </div>
 
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.1.0</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.2.0</p>
     </footer>
 </div>
 
-<!-- 📜 CHANGELOG MODAL -->
 <div class="modal" id="changelog-modal" onclick="closeChangelog()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeChangelog()">&times;</span>
         <h2>System Changelog</h2>
         
         <div class="log-entry">
-            <span class="log-version">v3.1.0</span><span class="log-date">June 2026</span>
+            <span class="log-version">v3.2.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Upgraded browser tracking engine to navigate Google API data redirections safely.</li>
-                <li>Added interactive Changelog Modal and integrated universal version tracking UI.</li>
+                <li>Added "🌎 International" sorting button to filter menu controls.</li>
+                <li>Programmed automated global metadata sorting targeting keyword tracking matrices (Japan, Europe, UK, Thailand, Philippines).</li>
             </ul>
         </div>
-        
+        <div class="log-entry">
+            <span class="log-version">v3.1.1</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Fixed Apps Script payload crash by routing through native ContentService mapping.</li>
+            </ul>
+        </div>
         <div class="log-entry">
             <span class="log-version">v3.0.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Expanded spreadsheet core from local data arrays into full Google Sheets live API database sync.</li>
-                <li>Imported historical international variants (Japan Exclusives, Thailand Original Bottles, Philippines Supreme lineup)[cite: 1].</li>
-                <li>Added the vault of classic discontinued flavors (Cranberry, Silver Dry Lime, Plum Twist, Pomegranate)[cite: 1].</li>
+                <li>Expanded spreadsheet core into live Google Sheets API database sync.</li>
             </ul>
         </div>
     </div>
 </div>
 
 <script>
-    // Live execution web app token
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
     let currentFilter = 'all'; 
     let searchQuery = '';
 
+    // List of international indicators used to dynamically flag global variants
+    const intlKeywords = ['japan', 'europe', 'uk', 'thailand', 'philippines', 'krating daeng'];
+
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
         
         try {
-            // Re-engineered cross-origin fetch sequence explicitly designed for Google Sheets redirects
-            const response = await fetch(SHEET_API_URL, {
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'omit'
-            });
-            
-            if (!response.ok) throw new Error("API stream handshaking error");
+            const response = await fetch(SHEET_API_URL);
+            if (!response.ok) throw new Error("API stream error");
             
             flavors = await response.json();
             calculateStats();
@@ -185,7 +186,7 @@
                 <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
                     ❌ <b>Connection Blocked</b><br>
                     <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
-                        Browser security blocked the direct read. Make sure you have updated your Google Apps Script code to include the 'Access-Control-Allow-Origin' headers and published a <b>New Version</b>.
+                        The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b> with permissions open to 'Anyone'.
                     </span>
                 </div>`;
         }
@@ -199,6 +200,11 @@
         document.getElementById('stat-remaining').innerText = total - checkedCount;
     }
 
+    function isInternationalFlavor(name) {
+        const lowerName = name.toLowerCase();
+        return intlKeywords.some(keyword => lowerName.includes(keyword));
+    }
+
     function renderGrid() {
         const grid = document.getElementById('flavor-grid'); 
         grid.innerHTML = '';
@@ -208,6 +214,7 @@
             if (currentFilter === 'active') return !f.discontinued;
             if (currentFilter === 'discontinued') return f.discontinued;
             if (currentFilter === 'sf') return f.sf;
+            if (currentFilter === 'intl') return isInternationalFlavor(f.name);
             return true;
         });
 
@@ -221,6 +228,7 @@
             card.className = `flavor-card ${flavor.checked ? 'checked' : ''}`;
             
             const isSeasonal = flavor.name.toLowerCase().includes('winter') || flavor.name.toLowerCase().includes('summer') || flavor.name.toLowerCase().includes('spring');
+            const isIntl = isInternationalFlavor(flavor.name);
 
             card.innerHTML = `
                 <div class="card-header">
@@ -234,6 +242,7 @@
                     <span class="badge ${flavor.discontinued ? 'discontinued-status' : 'active-status'}">${flavor.discontinued ? 'Discontinued' : 'Active'}</span>
                     ${flavor.sf ? '<span class="badge sugar-free">Sugar Free</span>' : ''}
                     ${isSeasonal ? '<span class="badge seasonal">Seasonal</span>' : ''}
+                    ${isIntl ? '<span class="badge intl-status">🌎 International</span>' : ''}
                 </div>`;
             grid.appendChild(card);
         });
