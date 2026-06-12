@@ -46,7 +46,7 @@
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
-        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; transition: color 0.3s; }
         .stat-card.lifetime-card .num { color: var(--rb-neon-cyan); }
         .stat-card.live-now-card .num { color: var(--rb-neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
         .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -115,7 +115,7 @@
             <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
             <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
             <div class="stat-card lifetime-card"><span class="num" id="stat-visitors">...</span><span class="label">Total Site Visits</span></div>
-            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">...</span><span class="label">🟢 Live Now</span></div>
+            <div class="stat-card live-now-card"><span class="num" id="stat-live-now" style="color:#ef4444;">Offline</span><span class="label">🟢 Live Now</span></div>
         </div>
     </header>
 
@@ -142,9 +142,21 @@
         <span class="close-btn" onclick="closeChangelog()">&times;</span>
         <h2>System Changelog</h2>
         <div class="log-entry">
+            <span class="log-version">v4.3.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Migrated Realtime Database engine to a newly provisioned, dedicated Firebase project (`redbull-tracker-d99fc`) for isolated architecture and improved load balancing.</li>
+            </ul>
+        </div>
+        <div class="log-entry">
+            <span class="log-version">v4.2.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Added Graceful Fallback Engine: If Firebase API key is missing or revoked, UI safely degrades to Google Sheets static counts without crashing the flavor list.</li>
+            </ul>
+        </div>
+        <div class="log-entry">
             <span class="log-version">v4.1.2</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Finalized Hybrid Engine: Firebase handles all metrics safely under the `/Counters/RedBull` node, while Google Sheets handles all flavor data rendering.</li>
+                <li>Finalized Hybrid Engine: Firebase handles all metrics safely under `/Counters/RedBull`.</li>
             </ul>
         </div>
     </div>
@@ -152,7 +164,7 @@
 
 <script type="module">
     // ⚙️ CENTRAL VERSION CONTROL ⚙️
-    const APP_VERSION = "4.1.2";
+    const APP_VERSION = "4.3.0";
     
     document.title = `Red Bull Master Tracker v${APP_VERSION}`;
     document.getElementById("ui-version-tag").innerText = `v${APP_VERSION} • View Changelog`;
@@ -161,19 +173,18 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-    // 🔒 Your exact database credentials
+    // 🔴 DEDICATED RED BULL FIREBASE CONFIGURATION
     const firebaseConfig = {
-        apiKey: "AIzaSyC_hi0FHW0wBzctoEs551NfQxU3MbQNC3w", 
-        authDomain: "lbbb-webcounter.firebaseapp.com",
-        projectId: "lbbb-webcounter",
-        storageBucket: "lbbb-webcounter.firebasestorage.app",
-        messagingSenderId: "217634980859",
-        appId: "1:217634980859:web:49ef2b0aa7fe7d0bb1415e",
-        databaseURL: "https://lbbb-webcounter-default-rtdb.firebaseio.com/"
+        apiKey: "AIzaSyAcp10gvC9gPzlK6m-nsbDlno4sVG06ZZA",
+        authDomain: "redbull-tracker-d99fc.firebaseapp.com",
+        projectId: "redbull-tracker-d99fc",
+        storageBucket: "redbull-tracker-d99fc.firebasestorage.app",
+        messagingSenderId: "434524626953",
+        appId: "1:434524626953:web:5a442a05a74fad474b18d8",
+        measurementId: "G-XNWMNG1XT6",
+        // Crucial fallback URL to ensure realtime connection mounts
+        databaseURL: "https://redbull-tracker-d99fc-default-rtdb.firebaseio.com/" 
     };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
 
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
@@ -184,37 +195,47 @@
 
     // --- 1. FIREBASE TELEMETRY (LIVE TRACKERS) ---
     function initFirebaseTelemetry() {
-        const totalViewsRef = ref(database, "Counters/RedBull/totalViewCount");
-        const visitorsRef = ref(database, "Counters/RedBull/visitorsConnected");
-        const connectedRef = ref(database, ".info/connected");
+        try {
+            const app = initializeApp(firebaseConfig);
+            const database = getDatabase(app);
 
-        // Lifetime View Counter
-        runTransaction(totalViewsRef, (currentValue) => {
-            return (currentValue === null ? 1 : Number(currentValue) + 1);
-        });
-        onValue(totalViewsRef, (snapshot) => {
-            const hits = snapshot.val() || 0;
-            document.getElementById("stat-visitors").textContent = hits.toLocaleString();
-        });
+            const totalViewsRef = ref(database, "Counters/RedBull/totalViewCount");
+            const visitorsRef = ref(database, "Counters/RedBull/visitorsConnected");
+            const connectedRef = ref(database, ".info/connected");
 
-        // Live Now Presence Tracker
-        onValue(connectedRef, (snapshot) => {
-            if (snapshot.val() === true) {
-                const presenceRef = push(visitorsRef);
-                set(presenceRef, true);
-                onDisconnect(presenceRef).remove(); 
-            }
-        });
-        onValue(visitorsRef, (snapshot) => {
-            let activeBrowsers = 0;
-            if (snapshot.exists()) {
-                activeBrowsers = Object.keys(snapshot.val()).length;
-            }
-            document.getElementById("stat-live-now").textContent = activeBrowsers.toLocaleString();
-        });
+            // Lifetime View Counter
+            runTransaction(totalViewsRef, (currentValue) => {
+                return (currentValue === null ? 1 : Number(currentValue) + 1);
+            });
+            onValue(totalViewsRef, (snapshot) => {
+                const hits = snapshot.val() || 0;
+                document.getElementById("stat-visitors").textContent = hits.toLocaleString();
+            });
+
+            // Live Now Presence Tracker
+            onValue(connectedRef, (snapshot) => {
+                if (snapshot.val() === true) {
+                    const presenceRef = push(visitorsRef);
+                    set(presenceRef, true);
+                    onDisconnect(presenceRef).remove(); 
+                }
+            });
+            
+            onValue(visitorsRef, (snapshot) => {
+                let activeBrowsers = 0;
+                if (snapshot.exists()) {
+                    activeBrowsers = Object.keys(snapshot.val()).length;
+                }
+                const liveEl = document.getElementById("stat-live-now");
+                liveEl.textContent = activeBrowsers.toLocaleString();
+                liveEl.style.color = "var(--rb-neon-green)"; // Turn green when online
+            });
+        } catch (error) {
+            console.warn("Firebase failed to initialize. Running in offline mode.");
+        }
     }
 
-    // --- 2. GOOGLE SHEETS TELEMETRY (FLAVOR DATA) ---
+    // --- 2. GOOGLE SHEETS TELEMETRY (FLAVOR DATA & BACKUP VIEWS) ---
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
@@ -228,8 +249,17 @@
             
             const payload = JSON.parse(rawText);
             
-            // Universal Translator
-            flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
+            // Extract flavors
+            if (Array.isArray(payload)) {
+                flavors = payload;
+            } else {
+                flavors = payload.flavors || [];
+                // 🛡️ TRUE FALLBACK: If Firebase is dead, load views from Google Sheets as a backup
+                const visitorEl = document.getElementById('stat-visitors');
+                if (payload.visitorCount !== undefined && (visitorEl.innerText === '...' || visitorEl.innerText === '0' || visitorEl.innerText === 'Offline')) {
+                    visitorEl.innerText = Number(payload.visitorCount).toLocaleString();
+                }
+            }
             
             calculateStats();
             renderGrid();
