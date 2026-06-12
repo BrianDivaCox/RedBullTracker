@@ -43,4 +43,242 @@
         header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
-        .stats-grid { display: grid; grid-template-columns
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
+        .stat-card.live-visitor-card .num { color: var(--rb-neon-cyan); }
+        .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .search-box { flex: 1; min-width: 260px; }
+        .search-box input { width: 100%; padding: 10px 15px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 0.95rem; }
+        .search-box input:focus { border-color: var(--rb-yellow); outline: none; box-shadow: 0 0 0 2px var(--accent-glow); }
+        .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .btn:hover { border-color: var(--text-muted); }
+        .btn.active { background: var(--rb-yellow); color: #000; font-weight: 600; border-color: var(--rb-yellow); }
+
+        .flavor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .flavor-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; transition: transform 0.2s, border-color 0.2s; }
+        .flavor-card.checked { border-color: var(--rb-yellow); background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,204,0,0.01) 100%); }
+
+        .card-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .checkbox-container { position: relative; width: 24px; height: 24px; flex-shrink: 0; }
+        .checkbox-container input { opacity: 0; width: 0; height: 0; }
+        .checkmark { position: absolute; top: 0; left: 0; height: 24px; width: 24px; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 6px; }
+        .checkbox-container input:checked ~ .checkmark { background: var(--rb-yellow); border-color: var(--rb-yellow); }
+        .checkmark:after { content: ""; position: absolute; display: none; left: 8px; top: 4px; width: 5px; height: 10px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+        .checkbox-container input:checked ~ .checkmark:after { display: block; }
+        .flavor-title { font-size: 1.15rem; font-weight: 600; color: #fff; }
+
+        .badge-container { display: flex; gap: 6px; margin-top: auto; flex-wrap: wrap; }
+        .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge.active-status { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge.discontinued-status { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge.sugar-free { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .badge.intl-status { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+        
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(6, 8, 16, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal-content {
+            background-color: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 30px; border-radius: 16px; max-width: 550px; width: 90%; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative;
+        }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .modal h2 { margin-bottom: 20px; color: #fff; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+        .log-entry { margin-bottom: 20px; }
+        .log-version { font-weight: 700; color: var(--rb-yellow); font-size: 1.05rem; }
+        .log-date { font-size: 0.8rem; color: var(--text-muted); margin-left: 10px; }
+        .log-list { margin-top: 5px; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; }
+        .log-list li { margin-bottom: 4px; }
+
+        footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="version-tag" onclick="openChangelog()">v4.0.0 • View Changelog</div>
+        <h1>Red Bull Master Tracker</h1>
+        <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
+        <div class="stats-grid">
+            <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div>
+            <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
+            <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
+            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">---</span><span class="label">Total Site Visits</span></div>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="search-box"><input type="text" id="search-input" placeholder="Search variants or countries..."></div>
+        <div class="filter-buttons">
+            <button class="btn active" onclick="filterFlavors('all', this)">All</button>
+            <button class="btn" onclick="filterFlavors('active', this)">Active</button>
+            <button class="btn" onclick="filterFlavors('discontinued', this)">Discontinued</button>
+            <button class="btn" onclick="filterFlavors('sf', this)">Sugar Free</button>
+            <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button>
+        </div>
+    </div>
+
+    <div class="flavor-grid" id="flavor-grid"></div>
+    
+    <footer>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v4.0.0</p>
+    </footer>
+</div>
+
+<div class="modal" id="changelog-modal" onclick="closeChangelog()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeChangelog()">&times;</span>
+        <h2>System Changelog</h2>
+        <div class="log-entry">
+            <span class="log-version">v4.0.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>PRO BUILD: Re-architected data parsing engine to catch silent failures and print explicit network diagnostics.</li>
+                <li>Hardcoded UI rendering sequence to guarantee visual load even if external API endpoints timeout.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Exact, live Google Script execution link
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
+    
+    let flavors = [];
+    let currentFilter = 'all'; 
+    let searchQuery = '';
+    const intlKeywords = ['japan', 'europe', 'uk', 'thailand', 'philippines', 'krating daeng'];
+
+    async function fetchTrackerData() {
+        const grid = document.getElementById('flavor-grid');
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
+        
+        try {
+            const response = await fetch(SHEET_API_URL);
+            
+            // If Google rejects the connection (e.g. CORS block or 404)
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+            }
+            
+            const rawText = await response.text();
+            
+            // Safety Check: If the script returns an HTML login page instead of JSON, catch it before it crashes the site
+            if (rawText.trim().startsWith("<")) {
+                throw new Error("Google blocked the read request. Ensure Apps Script is deployed to 'Anyone'.");
+            }
+            
+            const payload = JSON.parse(rawText);
+            
+            // Did the Apps Script catch its own internal error?
+            if (payload.status === "error") {
+                throw new Error(`Spreadsheet Error: ${payload.message}`);
+            }
+            
+            // Data maps beautifully whether it's the old flat array or the new Object payload
+            if (Array.isArray(payload)) {
+                flavors = payload;
+                document.getElementById('stat-visitors').innerText = "---";
+            } else {
+                flavors = payload.flavors || [];
+                document.getElementById('stat-visitors').innerText = payload.visitorCount ? Number(payload.visitorCount).toLocaleString() : "---";
+            }
+            
+            calculateStats();
+            renderGrid();
+            
+        } catch (error) {
+            console.error("DIAGNOSTIC ERROR:", error);
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 12px; padding: 30px;">
+                    <h3 style="color: #ef4444; margin-bottom: 10px;">❌ Connection Failed</h3>
+                    <p style="color: #f1f5f9; font-family: monospace; font-size: 0.9rem;">${error.message}</p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 15px;">Check your browser console (F12) for more details.</p>
+                </div>`;
+        }
+    }
+
+    function calculateStats() {
+        const total = flavors.length; 
+        const checkedCount = flavors.filter(f => f.checked).length;
+        document.getElementById('stat-progress').innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%";
+        document.getElementById('stat-count').innerText = checkedCount + " / " + total;
+        document.getElementById('stat-remaining').innerText = total - checkedCount;
+    }
+
+    function isInternationalFlavor(name) {
+        const lowerName = name.toLowerCase();
+        return intlKeywords.some(keyword => lowerName.includes(keyword));
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('flavor-grid'); 
+        grid.innerHTML = '';
+        
+        const filtered = flavors.filter(f => {
+            if (searchQuery && !f.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+            if (currentFilter === 'active') return !f.discontinued;
+            if (currentFilter === 'discontinued') return f.discontinued;
+            if (currentFilter === 'sf') return f.sf;
+            if (currentFilter === 'intl') return isInternationalFlavor(f.name);
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">No matching flavors discovered.</div>`;
+            return;
+        }
+
+        filtered.forEach(flavor => {
+            const card = document.createElement('div');
+            card.className = `flavor-card ${flavor.checked ? 'checked' : ''}`;
+            
+            const isSeasonal = flavor.name.toLowerCase().includes('winter') || flavor.name.toLowerCase().includes('summer') || flavor.name.toLowerCase().includes('spring');
+            const isIntl = isInternationalFlavor(flavor.name);
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <label class="checkbox-container" style="pointer-events: none;">
+                        <input type="checkbox" ${flavor.checked ? 'checked' : ''} disabled>
+                        <span class="checkmark"></span>
+                    </label>
+                    <div class="flavor-title">${flavor.name}</div>
+                </div>
+                <div class="badge-container">
+                    <span class="badge ${flavor.discontinued ? 'discontinued-status' : 'active-status'}">${flavor.discontinued ? 'Discontinued' : 'Active'}</span>
+                    ${flavor.sf ? '<span class="badge sugar-free">Sugar Free</span>' : ''}
+                    ${isSeasonal ? '<span class="badge seasonal">Seasonal</span>' : ''}
+                    ${isIntl ? '<span class="badge intl-status">🌎 International</span>' : ''}
+                </div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    window.filterFlavors = function(filterType, element) {
+        currentFilter = filterType;
+        document.querySelectorAll('.filter-buttons .btn').forEach(b => b.classList.remove('active'));
+        element.classList.add('active'); 
+        renderGrid();
+    };
+
+    window.openChangelog = function() { document.getElementById('changelog-modal').classList.add('open'); };
+    window.closeChangelog = function() { document.getElementById('changelog-modal').classList.remove('open'); };
+
+    document.getElementById('search-input').addEventListener('input', (e) => { 
+        searchQuery = e.target.value; 
+        renderGrid(); 
+    });
+
+    // Execute immediately without waiting for DOMContentLoaded to prevent race conditions
+    fetchTrackerData();
+</script>
+</body>
+</html>
