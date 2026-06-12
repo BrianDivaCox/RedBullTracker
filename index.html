@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Bull Master Tracker</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -14,6 +16,7 @@
             --rb-red: #e4002b;
             --rb-yellow: #ffcc00;
             --rb-neon-cyan: #0ea5e9;
+            --rb-neon-green: #10b981;
             --accent-glow: rgba(255, 204, 0, 0.15);
             --border-color: #242f53;
         }
@@ -43,10 +46,11 @@
         header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
         .stat-card.live-visitor-card .num { color: var(--rb-neon-cyan); }
+        .stat-card.live-now-card .num { color: var(--rb-neon-green); }
         .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
         .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -79,7 +83,6 @@
         .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
         .badge.intl-status { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
         
-        /* 📜 Modal System Layout */
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             background-color: rgba(6, 8, 16, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center;
@@ -106,14 +109,15 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.3.0 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.4.0 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
             <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div>
             <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
             <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
-            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">---</span><span class="label">Total Site Visits</span></div>
+            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">0</span><span class="label">Total Site Visits</span></div>
+            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">1</span><span class="label">🟢 Live Now</span></div>
         </div>
     </header>
 
@@ -131,7 +135,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.3.0</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.0</p>
     </footer>
 </div>
 
@@ -141,10 +145,17 @@
         <h2>System Changelog</h2>
         
         <div class="log-entry">
+            <span class="log-version">v3.4.0</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Migrated user metrics pipeline entirely from spreadsheet to Firebase Realtime Database.</li>
+                <li>Routed telemetry nodes safely under organized `Counters/redbull_tracker` directory path.</li>
+                <li>Added sockets listener presence module supporting synchronized "🟢 Live Now" calculations.</li>
+            </ul>
+        </div>
+        <div class="log-entry">
             <span class="log-version">v3.3.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Integrated Live Global Visitor Counter linked directly to spreadsheet cell memory (G1).</li>
-                <li>Added fourth telemetry module to header grid displaying live rolling unique views.</li>
+                <li>Integrated Live Global Visitor Counter linked to cell memory (G1).</li>
                 <li>Optimized streaming architecture to render under clean C2 processing design paradigms.</li>
             </ul>
         </div>
@@ -154,16 +165,27 @@
                 <li>Added "🌎 International" filtering option and localized keyword scanner arrays.</li>
             </ul>
         </div>
-        <div class="log-entry">
-            <span class="log-version">v3.1.1</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Patched data pipeline architecture to stream seamlessly via Google Service text outputs.</li>
-            </ul>
-        </div>
     </div>
 </div>
 
 <script>
+    // --- FIREBASE ACCOUNT SETUP ---
+    // Utilizing your stable lbbb-webcounter cluster configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_hi0FHW0wBzctoEs551NfQxU3MbQNC3w",
+        authDomain: "lbbb-webcounter.firebaseapp.com",
+        projectId: "lbbb-webcounter",
+        storageBucket: "lbbb-webcounter.firebasestorage.app",
+        messagingSenderId: "217634980859",
+        appId: "1:217634980859:web:49ef2b0aa7fe7d0bb1415e",
+        databaseURL: "https://lbbb-webcounter-default-rtdb.firebaseio.com/"
+    };
+
+    // Bootstrap Firebase Instance
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Structural static flavors endpoint stream
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
@@ -171,6 +193,37 @@
     let searchQuery = '';
 
     const intlKeywords = ['japan', 'europe', 'uk', 'thailand', 'philippines', 'krating daeng'];
+
+    // --- REALTIME TELEMETRY SYSTEM ---
+    function initTrackerTelemetry() {
+        const telemetryRef = database.ref("Counters/redbull_tracker");
+
+        // A. Increment total hit counts safely through atomic adjustments
+        telemetryRef.child("totalViewCount").transaction((currentValue) => {
+            return (currentValue === null ? 1 : Number(currentValue) + 1);
+        });
+
+        // B. Bind total lifetime hits into live display
+        telemetryRef.child("totalViewCount").on("value", (snapshot) => {
+            const hits = snapshot.val() || 0;
+            document.getElementById("stat-visitors").textContent = hits.toLocaleString();
+        });
+
+        // C. Establish WebSockets Presence Connection Array 
+        const presenceRef = telemetryRef.child("visitorsConnected").push();
+        database.ref(".info/connected").on("value", (snapshot) => {
+            if (snapshot.val() === true) {
+                presenceRef.set(true);
+                presenceRef.onDisconnect().remove();
+            }
+        });
+
+        // D. Sync concurrent window connections count
+        telemetryRef.child("visitorsConnected").on("value", (snapshot) => {
+            const activeBrowsers = snapshot.numChildren() || 1;
+            document.getElementById("stat-live-now").textContent = activeBrowsers.toLocaleString();
+        });
+    }
 
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
@@ -182,8 +235,8 @@
             
             const payload = await response.json();
             
-            flavors = payload.flavors;
-            document.getElementById('stat-visitors').innerText = payload.visitorCount.toLocaleString();
+            // Accommodates vanilla sheets format or payload envelopes gracefully
+            flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
             
             calculateStats();
             renderGrid();
@@ -270,6 +323,8 @@
         renderGrid(); 
     });
 
+    // Run structural components on bootstrap loops
+    initTrackerTelemetry();
     fetchTrackerData();
 </script>
 </body>
