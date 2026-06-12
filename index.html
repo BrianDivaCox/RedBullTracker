@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Bull Master Tracker</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -16,7 +14,6 @@
             --rb-red: #e4002b;
             --rb-yellow: #ffcc00;
             --rb-neon-cyan: #0ea5e9;
-            --rb-neon-green: #10b981;
             --accent-glow: rgba(255, 204, 0, 0.15);
             --border-color: #242f53;
         }
@@ -46,11 +43,10 @@
         header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
         .stat-card.live-visitor-card .num { color: var(--rb-neon-cyan); }
-        .stat-card.live-now-card .num { color: var(--rb-neon-green); }
         .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
         .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -109,15 +105,14 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.4.4 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.3.1 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
             <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div>
             <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
             <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
-            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">0</span><span class="label">Total Site Visits</span></div>
-            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">0</span><span class="label">🟢 Live Now</span></div>
+            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">---</span><span class="label">Total Site Visits</span></div>
         </div>
     </header>
 
@@ -135,7 +130,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.4</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.3.1</p>
     </footer>
 </div>
 
@@ -145,37 +140,23 @@
         <h2>System Changelog</h2>
         
         <div class="log-entry">
-            <span class="log-version">v3.4.4</span><span class="log-date">June 2026</span>
+            <span class="log-version">v3.3.1</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Corrected directory namespace routing from legacy folder tags to the explicit `Counters/RedBull` tree layout.</li>
+                <li>Rolled back layout dependencies to completely map statistics straight from the core Google Sheet endpoint data stream payload.</li>
+                <li>Removed external cloud socket database hooks to eliminate rendering race loops.</li>
             </ul>
         </div>
         <div class="log-entry">
-            <span class="log-version">v3.4.2</span><span class="log-date">June 2026</span>
+            <span class="log-version">v3.3.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Wrapped telemetry startup scripts inside unified DOM listeners to prevent rendering race crashes.</li>
+                <li>Integrated Live Global Visitor Counter linked directly to spreadsheet cell memory (G1).</li>
+                <li>Added "🌎 International" sorting button and localized keyword scanner arrays.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyC_hi0FHW0wBzctoEs551NfQxU3MbQNC3w",
-        authDomain: "lbbb-webcounter.firebaseapp.com",
-        projectId: "lbbb-webcounter",
-        storageBucket: "lbbb-webcounter.firebasestorage.app",
-        messagingSenderId: "217634980859",
-        appId: "1:217634980859:web:49ef2b0aa7fe7d0bb1415e",
-        databaseURL: "https://lbbb-webcounter-default-rtdb.firebaseio.com/"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
-
+<script>
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
@@ -184,83 +165,45 @@
 
     const intlKeywords = ['japan', 'europe', 'uk', 'thailand', 'philippines', 'krating daeng'];
 
-    // --- REALTIME TELEMETRY SYSTEM ---
-    function initTrackerTelemetry() {
-        // FIXED ROUTE: Formatted exactly to your Counters/RedBull rules directory tree
-        const totalViewsRef = ref(database, "Counters/RedBull/totalViewCount");
-        
-        // Accumulate running total counts safely
-        runTransaction(totalViewsRef, (currentValue) => {
-            return (currentValue === null ? 1 : Number(currentValue) + 1);
-        });
-
-        // Sync lifetime view elements safely after page text buffers are confirmed
-        onValue(totalViewsRef, (snapshot) => {
-            const hits = snapshot.val() || 0;
-            const targetEl = document.getElementById("stat-visitors");
-            if(targetEl) targetEl.textContent = hits.toLocaleString();
-        });
-
-        // FIXED ROUTE: Formatted exactly to your Counters/RedBull rules directory tree
-        const visitorsRef = ref(database, "Counters/RedBull/visitorsConnected");
-        const connectedRef = ref(database, ".info/connected");
-        
-        onValue(connectedRef, (snapshot) => {
-            if (snapshot.val() === true) {
-                const presenceRef = push(visitorsRef);
-                set(presenceRef, true);
-                onDisconnect(presenceRef).remove();
-            }
-        });
-
-        onValue(visitorsRef, (snapshot) => {
-            let activeBrowsers = 0;
-            if (snapshot.exists()) {
-                activeBrowsers = Object.keys(snapshot.val()).length;
-            }
-            const liveNowEl = document.getElementById("stat-live-now");
-            if(liveNowEl) liveNowEl.textContent = activeBrowsers.toLocaleString();
-        });
-    }
-
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
-        if(grid) grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
         
         try {
             const response = await fetch(SHEET_API_URL);
-            if (!response.ok) throw new Error("API stream disruption detected");
+            if (!response.ok) throw new Error("API stream connection dropped");
             
             const payload = await response.json();
-            flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
+            
+            // Core Reversion Fix: Reads the combined payload package generated by your Sheet Macro
+            flavors = payload.flavors || [];
+            
+            // Map the hit counter cell data accurately straight to your metric block
+            const visitorCounterEl = document.getElementById('stat-visitors');
+            if (visitorCounterEl && payload.visitorCount !== undefined) {
+                visitorCounterEl.innerText = Number(payload.visitorCount).toLocaleString();
+            }
             
             calculateStats();
             renderGrid();
         } catch (error) {
             console.error("Connection Error:", error);
-            if(grid) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
-                        ❌ <b>Connection Blocked</b><br>
-                        <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
-                            The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b>.
-                        </span>
-                    </div>`;
-            }
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
+                    ❌ <b>Connection Blocked</b><br>
+                    <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
+                        The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b> with permissions open to 'Anyone'.
+                    </span>
+                </div>`;
         }
     }
 
     function calculateStats() {
         const total = flavors.length; 
         const checkedCount = flavors.filter(f => f.checked).length;
-        
-        const progressEl = document.getElementById('stat-progress');
-        const countEl = document.getElementById('stat-count');
-        const remainingEl = document.getElementById('stat-remaining');
-
-        if(progressEl) progressEl.innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%";
-        if(countEl) countEl.innerText = checkedCount + " / " + total;
-        if(remainingEl) remainingEl.innerText = total - checkedCount;
+        document.getElementById('stat-progress').innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%";
+        document.getElementById('stat-count').innerText = checkedCount + " / " + total;
+        document.getElementById('stat-remaining').innerText = total - checkedCount;
     }
 
     function isInternationalFlavor(name) {
@@ -270,7 +213,7 @@
 
     function renderGrid() {
         const grid = document.getElementById('flavor-grid'); 
-        if(!grid) return;
+        if (!grid) return;
         grid.innerHTML = '';
         
         const filtered = flavors.filter(f => {
@@ -305,34 +248,4 @@
                 <div class="badge-container">
                     <span class="badge ${flavor.discontinued ? 'discontinued-status' : 'active-status'}">${flavor.discontinued ? 'Discontinued' : 'Active'}</span>
                     ${flavor.sf ? '<span class="badge sugar-free">Sugar Free</span>' : ''}
-                    ${isSeasonal ? '<span class="badge seasonal">Seasonal</span>' : ''}
-                    ${isIntl ? '<span class="badge intl-status">🌎 International</span>' : ''}
-                </div>`;
-            grid.appendChild(card);
-        });
-    }
-
-    // Bind filters explicitly to module engine scope
-    window.filterFlavors = function(filterType, element) {
-        currentFilter = filterType;
-        document.querySelectorAll('.filter-buttons .btn').forEach(b => b.classList.remove('active'));
-        element.classList.add('active'); 
-        renderGrid();
-    };
-
-    window.openChangelog = function() { document.getElementById('changelog-modal').classList.add('open'); };
-    window.closeChangelog = function() { document.getElementById('changelog-modal').classList.remove('open'); };
-
-    document.getElementById('search-input').addEventListener('input', (e) => { 
-        searchQuery = e.target.value; 
-        renderGrid(); 
-    });
-
-    // Fire executions inside clean DOMContentLoaded sync events
-    document.addEventListener("DOMContentLoaded", () => {
-        initTrackerTelemetry();
-        fetchTrackerData();
-    });
-</script>
-</body>
-</html>
+                    ${isSeasonal ? '<span class="badge
