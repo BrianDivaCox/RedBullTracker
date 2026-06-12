@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Red Bull Master Tracker v${APP_VERSION}`</title>
+    <title id="page-title">Red Bull Master Tracker</title>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -166,4 +166,13 @@
     document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`;
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onDisconnect, onValue } from "https://www.gstatic.com/firebase
+    import { getDatabase, ref, push, set, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+    // 🔴 DEDICATED RED BULL FIREBASE CONFIGURATION
+    const firebaseConfig = {
+        apiKey: "AIzaSyAcp10gvC9gPzlK6m-nsbDlno4sVG06ZZA",
+        authDomain: "redbull-tracker-d99fc.firebaseapp.com",
+        projectId: "redbull-tracker-d99fc",
+        storageBucket: "redbull-tracker-d99fc.firebasestorage.app",
+        messagingSenderId: "434524626953",
+        appId: "1:434524626953:web:5a442a05a74fad474b18
