@@ -3,176 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Red Bull Master Tracker</title>
+    <title id="page-title">Red Bull Master Tracker v4.4.2</title>
     <style>
         :root {
-            --bg-color: #0c1020;
-            --card-bg: #161d36;
-            --text-color: #f1f5f9;
-            --text-muted: #94a3b8;
-            --rb-blue: #002244;
-            --rb-red: #e4002b;
-            --rb-yellow: #ffcc00;
-            --rb-neon-cyan: #0ea5e9;
-            --rb-neon-green: #10b981;
-            --accent-glow: rgba(255, 204, 0, 0.15);
-            --border-color: #242f53;
-        }
+            --bg-color: #0c1020; 
+            --card-bg: #161d36; 
+            --text-color: #f1f5f9; 
+            --text-muted: #94a3b8; 
+            --rb-blue: #002244; 
+            --rb-red: #e4002b; 
+            --rb-yellow: #ffcc00; 
+            --rb-neon-cyan: #0ea5e9; 
+            --rb-neon-green: #10b981; 
+            --accent-glow: rgba(255, 204, 0, 0.15); 
+            --border-color: #242f53; 
+        } 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; } 
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; line-height: 1.5; } 
+        .container { max-width: 1100px; margin: 0 auto; } 
+        header {text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #091124 0%, #111a36 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid var(--border-color); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); } 
+        header::before {content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--rb-blue), var(--rb-red), var(--rb-yellow)); } 
+        .version-tag {background: #1e293b; color: var(--rb-yellow); font-size: 0.8rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color); display: inline-block; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; } 
+        .version-tag:hover { background: #334155; transform: scale(1.05); } 
+        header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; } 
+        header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; } 
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; } 
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; } 
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; transition: color 0.3s; } 
+        .stat-card.lifetime-card .num { color: var(--rb-neon-cyan); } 
+        .stat-card.live-now-card .num { color: var(--rb-neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); } 
+        .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; } 
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); } 
+        .search-box { flex: 1; min-width: 260px; } 
+        .search-box input { width: 100%; padding: 10px 15px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 0.95rem; } 
+        .search-box input:focus { border-color: var(--rb-yellow); outline: none; box-shadow: 0 0 0 2px var(--accent-glow); } 
+        .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; } 
+        .btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; } 
+        .btn:hover { border-color: var(--text-muted); } 
+        .btn.active { background: var(--rb-yellow); color: #000; font-weight: 600; border-color: var(--rb-yellow); } 
+        .flavor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; } 
+        .flavor-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; transition: transform 0.2s, border-color 0.2s; } 
+        .flavor-card.checked { border-color: var(--rb-yellow); background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,204,0,0.01) 100%); } 
+        .card-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; } 
+        .checkbox-container { position: relative; width: 24px; height: 24px; flex-shrink: 0; } 
+        .checkbox-container input { opacity: 0; width: 0; height: 0; } 
+        .checkmark { position: absolute; top: 0; left: 0; height: 24px; width: 24px; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 6px; } 
+        .checkbox-container input:checked ~ .checkmark { background: var(--rb-yellow); border-color: var(--rb-yellow); } 
+        .checkmark:after { content: ""; position: absolute; display: none; left: 8px; top: 4px; width: 5px; height: 10px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); } 
+        .checkbox-container input:checked ~ .checkmark:after { display: block; } 
+        .flavor-title { font-size: 1.15rem; font-weight: 600; color: #fff; } 
+        .badge-container { display: flex; gap: 6px; margin-top: auto; flex-wrap: wrap; } 
+        .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; } 
+        .badge.active-status { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); } 
+        .badge.discontinued-status { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); } 
+        .badge.sugar-free { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); } 
+        .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); } 
+        .badge.intl-status { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); } 
+        .modal {display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(6, 8, 16, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; } 
+        .modal.open { display: flex; } 
+        .modal-content {background-color: var(--card-bg); border: 1px solid var(--border-color); padding: 30px; border-radius: 16px; max-width: 550px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative; } 
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; } 
+        .close-btn:hover { color: #fff; } 
+        .modal h2 { margin-bottom: 20px; color: #fff; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; } 
+        .log-entry { margin-bottom: 20px; } 
+        .log-version { font-weight: 700; color: var(--rb-yellow); font-size: 1.05rem; } 
+        .log-date { font-size: 0.8rem; color: var(--text-muted); margin-left: 10px; } 
+        .log-list { margin-top: 5px; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; } 
+        .log-list li { margin-bottom: 4px; } 
+        footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border-color); } 
+    </style> 
+</head> 
+<body> 
+    <div class="container"> 
+        <header> 
+            <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">...</div> 
+            <h1>Red Bull Master Tracker</h1> 
+            <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
+            <div class="stats-grid"> 
+                <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div> 
+                <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div> 
+                <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div> 
+                <div class="stat-card lifetime-card"><span class="num" id="stat-visitors">...</span><span class="label">Total Site Visits</span></div> 
+                <div class="stat-card live-now-card"><span class="num" id="stat-live-now" style="color:#ef4444;">Offline</span><span class="label">🟢 Live Now</span></div> 
+            </div> 
+        </header> 
+        <div class="controls"> 
+            <div class="search-box"><input type="text" id="search-input" placeholder="Search variants or countries..."></div> 
+            <div class="filter-buttons"> 
+                <button class="btn active" onclick="filterFlavors('all', this)">All</button> 
+                <button class="btn" onclick="filterFlavors('active', this)">Active</button> 
+                <button class="btn" onclick="filterFlavors('discontinued', this)">Discontinued</button> 
+                <button class="btn" onclick="filterFlavors('sf', this)">Sugar Free</button> 
+                <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button> 
+            </div> 
+        </div> 
+        <div class="flavor-grid" id="flavor-grid"></div> 
+        <footer> 
+            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">...</span></p> 
+        </footer> 
+    </div> 
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; line-height: 1.5; }
-        .container { max-width: 1100px; margin: 0 auto; }
+    <div class="modal" id="changelog-modal" onclick="closeChangelog()"> 
+        <div class="modal-content" onclick="event.stopPropagation()"> 
+            <span class="close-btn" onclick="closeChangelog()">&times;</span> 
+            <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.4.1</span><span class="log-date">June 2026</span> 
+                <ul class="log-list"> 
+                    <li>Consolidated codebase with new dedicated Red Bull Firebase credentials.</li> 
+                    <li>Finalized implementation of dynamic Central Version Control for simplified deployment updates.</li> 
+                </ul> 
+            </div> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.4.0</span><span class="log-date">June 2026</span> 
+                <ul class="log-list"> 
+                    <li>Deployed True Split-Engine Architecture: Lifetime Views route directly back to Google Sheets history (Cell G1), while Firebase securely drives concurrent Live Now presence tracking.</li> 
+                </ul> 
+            </div> 
+        </div> 
+    </div> 
 
-        header {
-            text-align: center; padding: 30px 20px;
-            background: linear-gradient(135deg, #091124 0%, #111a36 100%);
-            border-radius: 16px; margin-bottom: 30px; border: 1px solid var(--border-color);
-            position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        header::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, var(--rb-blue), var(--rb-red), var(--rb-yellow));
-        }
+    <script type="module"> 
+        // 1. Imports must go at the very top
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js"; 
+        import { getDatabase, ref, push, set, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js"; 
+
+        // 2. ⚙️ CENTRAL VERSION CONTROL ⚙️ 
+        const APP_VERSION = "4.4.1"; 
+
+        document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
+        document.getElementById("ui-version-tag").innerText = `v${APP_VERSION} • View Changelog`; 
+        document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
+
+        // 3. 🔴 DEDICATED RED BULL FIREBASE CONFIGURATION 
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAcp10gvC9gPzlK6m-nsbDlno4sVG06ZZA", 
+            authDomain: "redbull-tracker-d99fc.firebaseapp.com", 
+            projectId: "redbull-tracker-d99fc", 
+            storageBucket: "redbull-tracker-d99fc.firebasestorage.app", 
+            messagingSenderId: "434524626953", 
+            appId: "1:434524626953:web:5a442a05a74fad474b18" 
+        }; 
         
-        .version-tag {
-            background: #1e293b; color: var(--rb-yellow); font-size: 0.8rem; font-weight: 600;
-            padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color);
-            display: inline-block; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
-        }
-        .version-tag:hover { background: #334155; transform: scale(1.05); }
+        // 4. Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-        header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
-        header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
+        // Additional UI logic (like flavor filtering and modal handlers) would go here
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
-        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
-        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; transition: color 0.3s; }
-        .stat-card.lifetime-card .num { color: var(--rb-neon-cyan); }
-        .stat-card.live-now-card .num { color: var(--rb-neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-        .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
-        .search-box { flex: 1; min-width: 260px; }
-        .search-box input { width: 100%; padding: 10px 15px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-size: 0.95rem; }
-        .search-box input:focus { border-color: var(--rb-yellow); outline: none; box-shadow: 0 0 0 2px var(--accent-glow); }
-        .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        .btn:hover { border-color: var(--text-muted); }
-        .btn.active { background: var(--rb-yellow); color: #000; font-weight: 600; border-color: var(--rb-yellow); }
-
-        .flavor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .flavor-card { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; transition: transform 0.2s, border-color 0.2s; }
-        .flavor-card.checked { border-color: var(--rb-yellow); background: linear-gradient(180deg, var(--card-bg) 0%, rgba(255,204,0,0.01) 100%); }
-
-        .card-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
-        .checkbox-container { position: relative; width: 24px; height: 24px; flex-shrink: 0; }
-        .checkbox-container input { opacity: 0; width: 0; height: 0; }
-        .checkmark { position: absolute; top: 0; left: 0; height: 24px; width: 24px; background: var(--bg-color); border: 2px solid var(--border-color); border-radius: 6px; }
-        .checkbox-container input:checked ~ .checkmark { background: var(--rb-yellow); border-color: var(--rb-yellow); }
-        .checkmark:after { content: ""; position: absolute; display: none; left: 8px; top: 4px; width: 5px; height: 10px; border: solid #000; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
-        .checkbox-container input:checked ~ .checkmark:after { display: block; }
-        .flavor-title { font-size: 1.15rem; font-weight: 600; color: #fff; }
-
-        .badge-container { display: flex; gap: 6px; margin-top: auto; flex-wrap: wrap; }
-        .badge { font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge.active-status { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-        .badge.discontinued-status { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge.sugar-free { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .badge.seasonal { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
-        .badge.intl-status { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
-        
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(6, 8, 16, 0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center;
-        }
-        .modal.open { display: flex; }
-        .modal-content {
-            background-color: var(--card-bg); border: 1px solid var(--border-color);
-            padding: 30px; border-radius: 16px; max-width: 550px; width: 90%; max-height: 80vh; overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); position: relative;
-        }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
-        .close-btn:hover { color: #fff; }
-        .modal h2 { margin-bottom: 20px; color: #fff; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        .log-entry { margin-bottom: 20px; }
-        .log-version { font-weight: 700; color: var(--rb-yellow); font-size: 1.05rem; }
-        .log-date { font-size: 0.8rem; color: var(--text-muted); margin-left: 10px; }
-        .log-list { margin-top: 5px; padding-left: 20px; color: #cbd5e1; font-size: 0.95rem; }
-        .log-list li { margin-bottom: 4px; }
-
-        footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border-color); }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <header>
-        <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">...</div>
-        <h1>Red Bull Master Tracker</h1>
-        <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
-        <div class="stats-grid">
-            <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div>
-            <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
-            <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
-            <div class="stat-card lifetime-card"><span class="num" id="stat-visitors">...</span><span class="label">Total Site Visits</span></div>
-            <div class="stat-card live-now-card"><span class="num" id="stat-live-now" style="color:#ef4444;">Offline</span><span class="label">🟢 Live Now</span></div>
-        </div>
-    </header>
-
-    <div class="controls">
-        <div class="search-box"><input type="text" id="search-input" placeholder="Search variants or countries..."></div>
-        <div class="filter-buttons">
-            <button class="btn active" onclick="filterFlavors('all', this)">All</button>
-            <button class="btn" onclick="filterFlavors('active', this)">Active</button>
-            <button class="btn" onclick="filterFlavors('discontinued', this)">Discontinued</button>
-            <button class="btn" onclick="filterFlavors('sf', this)">Sugar Free</button>
-            <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button>
-        </div>
-    </div>
-
-    <div class="flavor-grid" id="flavor-grid"></div>
-    
-    <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">...</span></p>
-    </footer>
-</div>
-
-<div class="modal" id="changelog-modal" onclick="closeChangelog()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeChangelog()">&times;</span>
-        <h2>System Changelog</h2>
-        <div class="log-entry">
-            <span class="log-version">v4.4.1</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Consolidated codebase with new dedicated Red Bull Firebase credentials.</li>
-                <li>Finalized implementation of dynamic Central Version Control for simplified deployment updates.</li>
-            </ul>
-        </div>
-        <div class="log-entry">
-            <span class="log-version">v4.4.0</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Deployed True Split-Engine Architecture: Lifetime Views route directly back to Google Sheets history (Cell G1), while Firebase securely drives concurrent Live Now presence tracking.</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-    // ⚙️ CENTRAL VERSION CONTROL ⚙️
-    const APP_VERSION = "4.4.1";
-    
-    document.title = `Red Bull Master Tracker v${APP_VERSION}`;
-    document.getElementById("ui-version-tag").innerText = `v${APP_VERSION} • View Changelog`;
-    document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`;
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onDisconnect, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
-
-    // 🔴 DEDICATED RED BULL FIREBASE CONFIGURATION
-    const firebaseConfig = {
-        apiKey: "AIzaSyAcp10gvC9gPzlK6m-nsbDlno4sVG06ZZA",
-        authDomain: "redbull-tracker-d99fc.firebaseapp.com",
-        projectId: "redbull-tracker-d99fc",
-        storageBucket: "redbull-tracker-d99fc.firebasestorage.app",
-        messagingSenderId: "434524626953",
-        appId: "1:434524626953:web:5a442a05a74fad474b18
+    </script> 
+</body> 
+</html>
