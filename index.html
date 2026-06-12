@@ -14,6 +14,7 @@
             --rb-red: #e4002b;
             --rb-yellow: #ffcc00;
             --rb-neon-cyan: #0ea5e9;
+            --rb-neon-green: #10b981;
             --accent-glow: rgba(255, 204, 0, 0.15);
             --border-color: #242f53;
         }
@@ -43,10 +44,11 @@
         header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
         .stat-card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center; }
         .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--rb-yellow); display: block; }
-        .stat-card.live-visitor-card .num { color: var(--rb-neon-cyan); }
+        .stat-card.lifetime-card .num { color: var(--rb-neon-cyan); }
+        .stat-card.live-now-card .num { color: var(--rb-neon-green); text-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
         .stat-card .label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
 
         .controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -105,14 +107,15 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v4.0.0 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v4.1.0 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
             <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div>
             <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
             <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
-            <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">---</span><span class="label">Total Site Visits</span></div>
+            <div class="stat-card lifetime-card"><span class="num" id="stat-visitors">...</span><span class="label">Total Site Visits</span></div>
+            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">...</span><span class="label">🟢 Live Now</span></div>
         </div>
     </header>
 
@@ -130,7 +133,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v4.0.0</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v4.1.0</p>
     </footer>
 </div>
 
@@ -139,17 +142,33 @@
         <span class="close-btn" onclick="closeChangelog()">&times;</span>
         <h2>System Changelog</h2>
         <div class="log-entry">
-            <span class="log-version">v4.0.0</span><span class="log-date">June 2026</span>
+            <span class="log-version">v4.1.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>PRO BUILD: Re-architected data parsing engine to catch silent failures and print explicit network diagnostics.</li>
-                <li>Hardcoded UI rendering sequence to guarantee visual load even if external API endpoints timeout.</li>
+                <li>HYBRID DEPLOYMENT: Re-integrated Firebase Realtime Sockets exclusively for Total Visits and Live Concurrency metrics.</li>
+                <li>Preserved v4 Google Sheets architecture for flavor payload delivery to guarantee rendering stability.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<script>
-    // Exact, live Google Script execution link
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+    // 🔴 IMPORTANT: PASTE YOUR BRAND NEW API KEY HERE
+    const firebaseConfig = {
+        apiKey: "YOUR_NEW_API_KEY", 
+        authDomain: "lbbb-webcounter.firebaseapp.com",
+        projectId: "lbbb-webcounter",
+        storageBucket: "lbbb-webcounter.firebasestorage.app",
+        messagingSenderId: "217634980859",
+        appId: "1:217634980859:web:49ef2b0aa7fe7d0bb1415e",
+        databaseURL: "https://lbbb-webcounter-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
@@ -157,55 +176,68 @@
     let searchQuery = '';
     const intlKeywords = ['japan', 'europe', 'uk', 'thailand', 'philippines', 'krating daeng'];
 
+    // --- 1. FIREBASE TELEMETRY (LIVE TRACKERS) ---
+    function initFirebaseTelemetry() {
+        const totalViewsRef = ref(database, "Counters/RedBull/totalViewCount");
+        const visitorsRef = ref(database, "Counters/RedBull/visitorsConnected");
+        const connectedRef = ref(database, ".info/connected");
+
+        // Lifetime View Counter
+        runTransaction(totalViewsRef, (currentValue) => {
+            return (currentValue === null ? 1 : Number(currentValue) + 1);
+        });
+        onValue(totalViewsRef, (snapshot) => {
+            const hits = snapshot.val() || 0;
+            document.getElementById("stat-visitors").textContent = hits.toLocaleString();
+        });
+
+        // Live Now Presence Tracker
+        onValue(connectedRef, (snapshot) => {
+            if (snapshot.val() === true) {
+                const presenceRef = push(visitorsRef);
+                set(presenceRef, true);
+                onDisconnect(presenceRef).remove(); // Self-destruct when user leaves
+            }
+        });
+        onValue(visitorsRef, (snapshot) => {
+            let activeBrowsers = 0;
+            if (snapshot.exists()) {
+                activeBrowsers = Object.keys(snapshot.val()).length;
+            }
+            document.getElementById("stat-live-now").textContent = activeBrowsers.toLocaleString();
+        });
+    }
+
+    // --- 2. GOOGLE SHEETS TELEMETRY (FLAVOR DATA) ---
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
         grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
         
         try {
             const response = await fetch(SHEET_API_URL);
-            
-            // If Google rejects the connection (e.g. CORS block or 404)
-            if (!response.ok) {
-                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
             
             const rawText = await response.text();
-            
-            // Safety Check: If the script returns an HTML login page instead of JSON, catch it before it crashes the site
-            if (rawText.trim().startsWith("<")) {
-                throw new Error("Google blocked the read request. Ensure Apps Script is deployed to 'Anyone'.");
-            }
+            if (rawText.trim().startsWith("<")) throw new Error("Google blocked the read request.");
             
             const payload = JSON.parse(rawText);
             
-            // Did the Apps Script catch its own internal error?
-            if (payload.status === "error") {
-                throw new Error(`Spreadsheet Error: ${payload.message}`);
-            }
-            
-            // Data maps beautifully whether it's the old flat array or the new Object payload
-            if (Array.isArray(payload)) {
-                flavors = payload;
-                document.getElementById('stat-visitors').innerText = "---";
-            } else {
-                flavors = payload.flavors || [];
-                document.getElementById('stat-visitors').innerText = payload.visitorCount ? Number(payload.visitorCount).toLocaleString() : "---";
-            }
+            // Universal Translator: Handles old flat format and new object format effortlessly
+            flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
             
             calculateStats();
             renderGrid();
-            
         } catch (error) {
             console.error("DIAGNOSTIC ERROR:", error);
             grid.innerHTML = `
                 <div style="grid-column: 1/-1; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 12px; padding: 30px;">
                     <h3 style="color: #ef4444; margin-bottom: 10px;">❌ Connection Failed</h3>
                     <p style="color: #f1f5f9; font-family: monospace; font-size: 0.9rem;">${error.message}</p>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 15px;">Check your browser console (F12) for more details.</p>
                 </div>`;
         }
     }
 
+    // --- 3. UI RENDERING LOGIC ---
     function calculateStats() {
         const total = flavors.length; 
         const checkedCount = flavors.filter(f => f.checked).length;
@@ -215,8 +247,7 @@
     }
 
     function isInternationalFlavor(name) {
-        const lowerName = name.toLowerCase();
-        return intlKeywords.some(keyword => lowerName.includes(keyword));
+        return intlKeywords.some(keyword => name.toLowerCase().includes(keyword));
     }
 
     function renderGrid() {
@@ -240,7 +271,6 @@
         filtered.forEach(flavor => {
             const card = document.createElement('div');
             card.className = `flavor-card ${flavor.checked ? 'checked' : ''}`;
-            
             const isSeasonal = flavor.name.toLowerCase().includes('winter') || flavor.name.toLowerCase().includes('summer') || flavor.name.toLowerCase().includes('spring');
             const isIntl = isInternationalFlavor(flavor.name);
 
@@ -262,6 +292,7 @@
         });
     }
 
+    // Globals for HTML event binding
     window.filterFlavors = function(filterType, element) {
         currentFilter = filterType;
         document.querySelectorAll('.filter-buttons .btn').forEach(b => b.classList.remove('active'));
@@ -271,14 +302,13 @@
 
     window.openChangelog = function() { document.getElementById('changelog-modal').classList.add('open'); };
     window.closeChangelog = function() { document.getElementById('changelog-modal').classList.remove('open'); };
+    document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderGrid(); });
 
-    document.getElementById('search-input').addEventListener('input', (e) => { 
-        searchQuery = e.target.value; 
-        renderGrid(); 
+    // Boot Up Both Systems Safely
+    document.addEventListener("DOMContentLoaded", () => {
+        initFirebaseTelemetry();
+        fetchTrackerData();
     });
-
-    // Execute immediately without waiting for DOMContentLoaded to prevent race conditions
-    fetchTrackerData();
 </script>
 </body>
 </html>
