@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Bull Master Tracker</title>
-    <!-- Firebase Core and Realtime Database compat layer libraries -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
@@ -110,7 +109,7 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.4.2 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.4.4 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -136,7 +135,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.2</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.4</p>
     </footer>
 </div>
 
@@ -146,21 +145,20 @@
         <h2>System Changelog</h2>
         
         <div class="log-entry">
-            <span class="log-version">v3.4.2</span><span class="log-date">June 2026</span>
+            <span class="log-version">v3.4.4</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Wrapped telemetry startup scripts inside unified DOM listeners to prevent rendering execution race crashes.</li>
+                <li>Corrected directory namespace routing from legacy folder tags to the explicit `Counters/RedBull` tree layout.</li>
             </ul>
         </div>
         <div class="log-entry">
-            <span class="log-version">v3.4.1</span><span class="log-date">June 2026</span>
+            <span class="log-version">v3.4.2</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Patched module syntax error on root tracking script by defining standard modular import initialization structures.</li>
+                <li>Wrapped telemetry startup scripts inside unified DOM listeners to prevent rendering race crashes.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<!-- Firebase Modular SDK v12 Imports embedded inside a strict type="module" framework -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
@@ -188,7 +186,8 @@
 
     // --- REALTIME TELEMETRY SYSTEM ---
     function initTrackerTelemetry() {
-        const totalViewsRef = ref(database, "Counters/redbull_tracker/totalViewCount");
+        // FIXED ROUTE: Formatted exactly to your Counters/RedBull rules directory tree
+        const totalViewsRef = ref(database, "Counters/RedBull/totalViewCount");
         
         // Accumulate running total counts safely
         runTransaction(totalViewsRef, (currentValue) => {
@@ -202,8 +201,8 @@
             if(targetEl) targetEl.textContent = hits.toLocaleString();
         });
 
-        // Sync active real-time window connection counts
-        const visitorsRef = ref(database, "Counters/redbull_tracker/visitorsConnected");
+        // FIXED ROUTE: Formatted exactly to your Counters/RedBull rules directory tree
+        const visitorsRef = ref(database, "Counters/RedBull/visitorsConnected");
         const connectedRef = ref(database, ".info/connected");
         
         onValue(connectedRef, (snapshot) => {
@@ -329,7 +328,7 @@
         renderGrid(); 
     });
 
-    // CRITICAL FIX: Put executions inside DOMContentLoaded event loops to sync the data elements perfectly
+    // Fire executions inside clean DOMContentLoaded sync events
     document.addEventListener("DOMContentLoaded", () => {
         initTrackerTelemetry();
         fetchTrackerData();
