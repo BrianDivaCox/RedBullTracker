@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull Master Tracker</title>
+    <title id="page-title">Red Bull Master Tracker</title>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -107,7 +107,7 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v4.1.0 • View Changelog</div>
+        <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">...</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -133,7 +133,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v4.1.0</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">...</span></p>
     </footer>
 </div>
 
@@ -142,22 +142,28 @@
         <span class="close-btn" onclick="closeChangelog()">&times;</span>
         <h2>System Changelog</h2>
         <div class="log-entry">
-            <span class="log-version">v4.1.0</span><span class="log-date">June 2026</span>
+            <span class="log-version">v4.1.2</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>HYBRID DEPLOYMENT: Re-integrated Firebase Realtime Sockets exclusively for Total Visits and Live Concurrency metrics.</li>
-                <li>Preserved v4 Google Sheets architecture for flavor payload delivery to guarantee rendering stability.</li>
+                <li>Finalized Hybrid Engine: Firebase handles all metrics safely under the `/Counters/RedBull` node, while Google Sheets handles all flavor data rendering.</li>
             </ul>
         </div>
     </div>
 </div>
 
 <script type="module">
+    // ⚙️ CENTRAL VERSION CONTROL ⚙️
+    const APP_VERSION = "4.1.2";
+    
+    document.title = `Red Bull Master Tracker v${APP_VERSION}`;
+    document.getElementById("ui-version-tag").innerText = `v${APP_VERSION} • View Changelog`;
+    document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`;
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-    // 🔴 IMPORTANT: PASTE YOUR BRAND NEW API KEY HERE
+    // 🔒 Your exact database credentials
     const firebaseConfig = {
-        apiKey: "YOUR_NEW_API_KEY", 
+        apiKey: "AIzaSyC_hi0FHW0wBzctoEs551NfQxU3MbQNC3w", 
         authDomain: "lbbb-webcounter.firebaseapp.com",
         projectId: "lbbb-webcounter",
         storageBucket: "lbbb-webcounter.firebasestorage.app",
@@ -196,7 +202,7 @@
             if (snapshot.val() === true) {
                 const presenceRef = push(visitorsRef);
                 set(presenceRef, true);
-                onDisconnect(presenceRef).remove(); // Self-destruct when user leaves
+                onDisconnect(presenceRef).remove(); 
             }
         });
         onValue(visitorsRef, (snapshot) => {
@@ -222,7 +228,7 @@
             
             const payload = JSON.parse(rawText);
             
-            // Universal Translator: Handles old flat format and new object format effortlessly
+            // Universal Translator
             flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
             
             calculateStats();
