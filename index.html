@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Bull Master Tracker</title>
+    <!-- Firebase Core and Realtime Database compat layer libraries -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -107,7 +110,7 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.4.1 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.4.2 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -133,7 +136,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.1</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.2</p>
     </footer>
 </div>
 
@@ -143,21 +146,21 @@
         <h2>System Changelog</h2>
         
         <div class="log-entry">
+            <span class="log-version">v3.4.2</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Wrapped telemetry startup scripts inside unified DOM listeners to prevent rendering execution race crashes.</li>
+            </ul>
+        </div>
+        <div class="log-entry">
             <span class="log-version">v3.4.1</span><span class="log-date">June 2026</span>
             <ul class="log-list">
                 <li>Patched module syntax error on root tracking script by defining standard modular import initialization structures.</li>
             </ul>
         </div>
-        <div class="log-entry">
-            <span class="log-version">v3.4.0</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Migrated user metrics pipeline from spreadsheet macros to Firebase Realtime Database.</li>
-                <li>Routed metrics paths inside isolated `/Counters/redbull_tracker` directories.</li>
-            </ul>
-        </div>
     </div>
 </div>
 
+<!-- Firebase Modular SDK v12 Imports embedded inside a strict type="module" framework -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
@@ -187,15 +190,16 @@
     function initTrackerTelemetry() {
         const totalViewsRef = ref(database, "Counters/redbull_tracker/totalViewCount");
         
-        // Accumulate running total counts
+        // Accumulate running total counts safely
         runTransaction(totalViewsRef, (currentValue) => {
             return (currentValue === null ? 1 : Number(currentValue) + 1);
         });
 
-        // Sync lifetime view elements
+        // Sync lifetime view elements safely after page text buffers are confirmed
         onValue(totalViewsRef, (snapshot) => {
             const hits = snapshot.val() || 0;
-            document.getElementById("stat-visitors").textContent = hits.toLocaleString();
+            const targetEl = document.getElementById("stat-visitors");
+            if(targetEl) targetEl.textContent = hits.toLocaleString();
         });
 
         // Sync active real-time window connection counts
@@ -211,18 +215,18 @@
         });
 
         onValue(visitorsRef, (snapshot) => {
-            // Count number of active key objects present under directory node
             let activeBrowsers = 0;
             if (snapshot.exists()) {
                 activeBrowsers = Object.keys(snapshot.val()).length;
             }
-            document.getElementById("stat-live-now").textContent = activeBrowsers.toLocaleString();
+            const liveNowEl = document.getElementById("stat-live-now");
+            if(liveNowEl) liveNowEl.textContent = activeBrowsers.toLocaleString();
         });
     }
 
     async function fetchTrackerData() {
         const grid = document.getElementById('flavor-grid');
-        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
+        if(grid) grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">📡 Pulling live flavor metrics from your Google Sheet...</div>`;
         
         try {
             const response = await fetch(SHEET_API_URL);
@@ -235,22 +239,29 @@
             renderGrid();
         } catch (error) {
             console.error("Connection Error:", error);
-            grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
-                    ❌ <b>Connection Blocked</b><br>
-                    <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
-                        The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b>.
-                    </span>
-                </div>`;
+            if(grid) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
+                        ❌ <b>Connection Blocked</b><br>
+                        <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
+                            The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b>.
+                        </span>
+                    </div>`;
+            }
         }
     }
 
     function calculateStats() {
         const total = flavors.length; 
         const checkedCount = flavors.filter(f => f.checked).length;
-        document.getElementById('stat-progress').innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%";
-        document.getElementById('stat-count').innerText = checkedCount + " / " + total;
-        document.getElementById('stat-remaining').innerText = total - checkedCount;
+        
+        const progressEl = document.getElementById('stat-progress');
+        const countEl = document.getElementById('stat-count');
+        const remainingEl = document.getElementById('stat-remaining');
+
+        if(progressEl) progressEl.innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%";
+        if(countEl) countEl.innerText = checkedCount + " / " + total;
+        if(remainingEl) remainingEl.innerText = total - checkedCount;
     }
 
     function isInternationalFlavor(name) {
@@ -260,6 +271,7 @@
 
     function renderGrid() {
         const grid = document.getElementById('flavor-grid'); 
+        if(!grid) return;
         grid.innerHTML = '';
         
         const filtered = flavors.filter(f => {
@@ -301,7 +313,7 @@
         });
     }
 
-    // Bind layout button states globally to module environment scope
+    // Bind filters explicitly to module engine scope
     window.filterFlavors = function(filterType, element) {
         currentFilter = filterType;
         document.querySelectorAll('.filter-buttons .btn').forEach(b => b.classList.remove('active'));
@@ -317,9 +329,11 @@
         renderGrid(); 
     });
 
-    // Fire systems initialization
-    initTrackerTelemetry();
-    fetchTrackerData();
+    // CRITICAL FIX: Put executions inside DOMContentLoaded event loops to sync the data elements perfectly
+    document.addEventListener("DOMContentLoaded", () => {
+        initTrackerTelemetry();
+        fetchTrackerData();
+    });
 </script>
 </body>
 </html>
