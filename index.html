@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Red Bull Master Tracker</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-color: #0c1020;
@@ -109,7 +107,7 @@
 
 <div class="container">
     <header>
-        <div class="version-tag" onclick="openChangelog()">v3.4.0 • View Changelog</div>
+        <div class="version-tag" onclick="openChangelog()">v3.4.1 • View Changelog</div>
         <h1>Red Bull Master Tracker</h1>
         <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p>
         <div class="stats-grid">
@@ -117,7 +115,7 @@
             <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div>
             <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div>
             <div class="stat-card live-visitor-card"><span class="num" id="stat-visitors">0</span><span class="label">Total Site Visits</span></div>
-            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">1</span><span class="label">🟢 Live Now</span></div>
+            <div class="stat-card live-now-card"><span class="num" id="stat-live-now">0</span><span class="label">🟢 Live Now</span></div>
         </div>
     </header>
 
@@ -135,7 +133,7 @@
     <div class="flavor-grid" id="flavor-grid"></div>
     
     <footer>
-        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.0</p>
+        <p>&copy; 2026 Red Bull Completionist Portal. Current Version: v3.4.1</p>
     </footer>
 </div>
 
@@ -145,32 +143,25 @@
         <h2>System Changelog</h2>
         
         <div class="log-entry">
+            <span class="log-version">v3.4.1</span><span class="log-date">June 2026</span>
+            <ul class="log-list">
+                <li>Patched module syntax error on root tracking script by defining standard modular import initialization structures.</li>
+            </ul>
+        </div>
+        <div class="log-entry">
             <span class="log-version">v3.4.0</span><span class="log-date">June 2026</span>
             <ul class="log-list">
-                <li>Migrated user metrics pipeline entirely from spreadsheet to Firebase Realtime Database.</li>
-                <li>Routed telemetry nodes safely under organized `Counters/redbull_tracker` directory path.</li>
-                <li>Added sockets listener presence module supporting synchronized "🟢 Live Now" calculations.</li>
-            </ul>
-        </div>
-        <div class="log-entry">
-            <span class="log-version">v3.3.0</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Integrated Live Global Visitor Counter linked to cell memory (G1).</li>
-                <li>Optimized streaming architecture to render under clean C2 processing design paradigms.</li>
-            </ul>
-        </div>
-        <div class="log-entry">
-            <span class="log-version">v3.2.0</span><span class="log-date">June 2026</span>
-            <ul class="log-list">
-                <li>Added "🌎 International" filtering option and localized keyword scanner arrays.</li>
+                <li>Migrated user metrics pipeline from spreadsheet macros to Firebase Realtime Database.</li>
+                <li>Routed metrics paths inside isolated `/Counters/redbull_tracker` directories.</li>
             </ul>
         </div>
     </div>
 </div>
 
-<script>
-    // --- FIREBASE ACCOUNT SETUP ---
-    // Utilizing your stable lbbb-webcounter cluster configuration
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onDisconnect, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
     const firebaseConfig = {
         apiKey: "AIzaSyC_hi0FHW0wBzctoEs551NfQxU3MbQNC3w",
         authDomain: "lbbb-webcounter.firebaseapp.com",
@@ -181,11 +172,9 @@
         databaseURL: "https://lbbb-webcounter-default-rtdb.firebaseio.com/"
     };
 
-    // Bootstrap Firebase Instance
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-    // Structural static flavors endpoint stream
     const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec";
     
     let flavors = [];
@@ -196,31 +185,37 @@
 
     // --- REALTIME TELEMETRY SYSTEM ---
     function initTrackerTelemetry() {
-        const telemetryRef = database.ref("Counters/redbull_tracker");
-
-        // A. Increment total hit counts safely through atomic adjustments
-        telemetryRef.child("totalViewCount").transaction((currentValue) => {
+        const totalViewsRef = ref(database, "Counters/redbull_tracker/totalViewCount");
+        
+        // Accumulate running total counts
+        runTransaction(totalViewsRef, (currentValue) => {
             return (currentValue === null ? 1 : Number(currentValue) + 1);
         });
 
-        // B. Bind total lifetime hits into live display
-        telemetryRef.child("totalViewCount").on("value", (snapshot) => {
+        // Sync lifetime view elements
+        onValue(totalViewsRef, (snapshot) => {
             const hits = snapshot.val() || 0;
             document.getElementById("stat-visitors").textContent = hits.toLocaleString();
         });
 
-        // C. Establish WebSockets Presence Connection Array 
-        const presenceRef = telemetryRef.child("visitorsConnected").push();
-        database.ref(".info/connected").on("value", (snapshot) => {
+        // Sync active real-time window connection counts
+        const visitorsRef = ref(database, "Counters/redbull_tracker/visitorsConnected");
+        const connectedRef = ref(database, ".info/connected");
+        
+        onValue(connectedRef, (snapshot) => {
             if (snapshot.val() === true) {
-                presenceRef.set(true);
-                presenceRef.onDisconnect().remove();
+                const presenceRef = push(visitorsRef);
+                set(presenceRef, true);
+                onDisconnect(presenceRef).remove();
             }
         });
 
-        // D. Sync concurrent window connections count
-        telemetryRef.child("visitorsConnected").on("value", (snapshot) => {
-            const activeBrowsers = snapshot.numChildren() || 1;
+        onValue(visitorsRef, (snapshot) => {
+            // Count number of active key objects present under directory node
+            let activeBrowsers = 0;
+            if (snapshot.exists()) {
+                activeBrowsers = Object.keys(snapshot.val()).length;
+            }
             document.getElementById("stat-live-now").textContent = activeBrowsers.toLocaleString();
         });
     }
@@ -231,11 +226,9 @@
         
         try {
             const response = await fetch(SHEET_API_URL);
-            if (!response.ok) throw new Error("API pipeline connectivity break");
+            if (!response.ok) throw new Error("API stream disruption detected");
             
             const payload = await response.json();
-            
-            // Accommodates vanilla sheets format or payload envelopes gracefully
             flavors = Array.isArray(payload) ? payload : (payload.flavors || []);
             
             calculateStats();
@@ -246,7 +239,7 @@
                 <div style="grid-column: 1/-1; text-align: center; color: #f87171; padding: 40px 0;">
                     ❌ <b>Connection Blocked</b><br>
                     <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-top: 8px;">
-                        The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b> with permissions open to 'Anyone'.
+                        The web client couldn't parse the Google Sheet stream. Verify that your deployment version is compiled as a <b>New Version</b>.
                     </span>
                 </div>`;
         }
@@ -308,6 +301,7 @@
         });
     }
 
+    // Bind layout button states globally to module environment scope
     window.filterFlavors = function(filterType, element) {
         currentFilter = filterType;
         document.querySelectorAll('.filter-buttons .btn').forEach(b => b.classList.remove('active'));
@@ -323,7 +317,7 @@
         renderGrid(); 
     });
 
-    // Run structural components on bootstrap loops
+    // Fire systems initialization
     initTrackerTelemetry();
     fetchTrackerData();
 </script>
