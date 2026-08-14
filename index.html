@@ -464,7 +464,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.8.2 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.9.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -512,7 +512,7 @@
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.2</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.9.0</span>
             </div>
         </div>
     </div> 
@@ -522,6 +522,13 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.9.0</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Automated Flavor Discovery Bot:</strong> Deployed GitHub Actions daily crawler bot that scans global product databases and automatically appends newly discovered Red Bull flavors to your spreadsheet.</li>
+                    <li><strong>Auto-Append API Engine:</strong> Expanded backend API to support automated ingestion with duplicate detection.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.8.2</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -583,7 +590,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.8.2"; 
+        const APP_VERSION = "4.9.0"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -602,7 +609,7 @@
             databaseURL: "https://redbull-tracker-d99fc-default-rtdb.firebaseio.com/" 
         }; 
         
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwzXJ_FQsxQzCmTiVxKhq6XYONFPHBGHGcmsJdeZMn1CbI5iUdTXiZxiQXKAVM7J-jO/exec"; 
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycby3SoNI4chZ5TH_5ff5fxsw8kGLPoZtb5yqUx65MNFkmQ47mgBXzuPdp27lzL8t9Jz7/exec"; 
         
         // Comprehensive master flavor catalog baseline
         const DEFAULT_FLAVORS = [

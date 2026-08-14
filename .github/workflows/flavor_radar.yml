@@ -1,0 +1,25 @@
+name: Red Bull Flavor Radar Bot
+
+on:
+  schedule:
+    # Run every day at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allows manual trigger at any time from the GitHub Actions tab
+
+jobs:
+  discover-flavors:
+    name: Crawl & Discover New Flavors
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Flavor Radar Crawler
+        run: node scripts/flavor_radar.js

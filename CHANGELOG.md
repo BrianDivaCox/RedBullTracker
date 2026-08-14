@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.9.0] - 2026-08-13
+### Added
+- **Automated Flavor Discovery Bot**: Created a GitHub Actions daily crawler bot that scans global food and product registries for newly released or announced Red Bull editions and automatically appends verified new flavor rows to your Google Sheet.
+- **Automated Ingestion API**: Expanded the Google Apps Script backend to handle automated ingestion with duplicate detection.
+
 ## [v4.8.2] - 2026-08-13
 ### Added
 - **Live Auto-Sync & Tab-Focus Refresh**: Integrated 30-second live background polling and tab-focus auto-sync so any new flavors, checkboxes, or notes added to Google Sheets update on screen in real time.

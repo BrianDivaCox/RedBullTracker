@@ -1,5 +1,5 @@
 /**
- * Red Bull Master Tracker - Backend Web API
+ * Red Bull Master Tracker - Backend Web API & Auto-Append Engine
  * Project: RedBullTracker
  * Spreadsheet: 1Ey-jAHm0tR8ejP9fCSjQ0PAWtcfGTpMCWkFGdjSoi8c
  */
@@ -64,7 +64,6 @@ function doGet(e) {
 
     // Fallback column heuristics if header matching is ambiguous
     if (nameIdx === -1) {
-      // Find the first column with non-empty strings longer than 3 chars in row headerRowIndex + 1
       for (let c = 0; c < (data[headerRowIndex + 1] || []).length; c++) {
         if (typeof data[headerRowIndex + 1][c] === "string" && data[headerRowIndex + 1][c].length > 3) {
           nameIdx = c;
@@ -75,7 +74,6 @@ function doGet(e) {
     }
 
     if (checkIdx === -1) {
-      // Look for boolean or short checkbox column
       for (let c = 0; c < (data[headerRowIndex + 1] || []).length; c++) {
         const sample = data[headerRowIndex + 1][c];
         if (typeof sample === "boolean" || sample === "TRUE" || sample === "FALSE" || sample === 1 || sample === 0) {
@@ -150,6 +148,103 @@ function doGet(e) {
       hadCount: flavors.filter(f => f.checked).length,
       remainingCount: flavors.filter(f => !f.checked).length,
       flavors: flavors
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doPost(e) {
+  try {
+    let body = {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        body = JSON.parse(e.postData.contents);
+      } catch (err) {
+        body = e.parameter || {};
+      }
+    } else if (e && e.parameter) {
+      body = e.parameter;
+    }
+
+    const action = body.action || "addFlavor";
+    if (action === "addFlavor" || action === "batchAdd") {
+      let ss;
+      try {
+        ss = SpreadsheetApp.openById(TARGET_SPREADSHEET_ID);
+      } catch(err) {
+        ss = SpreadsheetApp.getActiveSpreadsheet();
+      }
+
+      const allSheets = ss.getSheets();
+      let sheet = null;
+      for (let i = 0; i < allSheets.length; i++) {
+        if (allSheets[i].getSheetId() === 30390711 || allSheets[i].getName().toLowerCase().includes("red bull") || allSheets[i].getName().toLowerCase().includes("flavor")) {
+          sheet = allSheets[i];
+          break;
+        }
+      }
+      if (!sheet && allSheets.length > 0) sheet = allSheets[0];
+
+      const data = sheet.getDataRange().getValues();
+      let headerRowIndex = 0;
+      for (let r = 0; r < Math.min(10, data.length); r++) {
+        const rowStr = data[r].map(c => String(c).toLowerCase()).join(" ");
+        if (rowStr.includes("flavor") || rowStr.includes("name") || rowStr.includes("had") || rowStr.includes("tried")) {
+          headerRowIndex = r;
+          break;
+        }
+      }
+
+      const headers = data[headerRowIndex].map(h => String(h).trim().toLowerCase());
+      let nameIdx = headers.findIndex(h => h.includes("name") || h.includes("flavor") || h.includes("title") || h.includes("edition"));
+      if (nameIdx === -1) nameIdx = 0;
+      let checkIdx = headers.findIndex(h => h.includes("check") || h.includes("had") || h.includes("tried") || h.includes("status"));
+      let discIdx = headers.findIndex(h => h.includes("discontinued") || h.includes("vault") || h.includes("retired") || h.includes("active"));
+
+      const existingNames = new Set();
+      for (let i = headerRowIndex + 1; i < data.length; i++) {
+        const n = String(data[i][nameIdx] || "").trim().toLowerCase();
+        if (n) existingNames.add(n);
+      }
+
+      const itemsToAdd = Array.isArray(body.flavors) ? body.flavors : [body];
+      const added = [];
+
+      for (let item of itemsToAdd) {
+        const name = String(item.name || item.flavorName || "").trim();
+        if (!name || existingNames.has(name.toLowerCase())) continue;
+
+        const newRow = new Array(headers.length).fill("");
+        newRow[nameIdx] = name;
+        if (checkIdx !== -1) newRow[checkIdx] = false;
+        if (discIdx !== -1) {
+          if (headers[discIdx].includes("active")) {
+            newRow[discIdx] = item.discontinued ? false : true;
+          } else {
+            newRow[discIdx] = !!item.discontinued;
+          }
+        }
+
+        sheet.appendRow(newRow);
+        existingNames.add(name.toLowerCase());
+        added.push(name);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "ok",
+        addedCount: added.length,
+        added: added
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: "Unknown action"
     })).setMimeType(ContentService.MimeType.JSON);
 
   } catch (err) {
