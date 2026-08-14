@@ -249,6 +249,20 @@
             border-color: var(--rb-yellow); 
             box-shadow: 0 2px 10px rgba(255, 204, 0, 0.3); 
         } 
+        .filter-count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            margin-left: 2px;
+            transition: all 0.2s ease;
+        }
+        .btn.active .filter-count {
+            background: rgba(0, 0, 0, 0.25);
+            color: #090e1c;
+        } 
         
         .switch-container { 
             display: inline-flex; 
@@ -450,7 +464,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.7.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.8.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -466,14 +480,14 @@
                 <input type="text" id="search-input" placeholder="Search flavor variants or country tags...">
             </div> 
             <div class="filter-buttons"> 
-                <button class="btn active" onclick="filterFlavors('all', this)">All</button> 
-                <button class="btn" onclick="filterFlavors('active', this)"><i class="fa-solid fa-circle-check" style="color:#34d399;"></i> Active</button> 
-                <button class="btn" onclick="filterFlavors('seasonal', this)"><i class="fa-solid fa-snowflake" style="color:#c084fc;"></i> Seasonal</button> 
-                <button class="btn" onclick="filterFlavors('discontinued', this)"><i class="fa-solid fa-box-archive" style="color:#f87171;"></i> Discontinued</button> 
-                <button class="btn" onclick="filterFlavors('sf', this)"><i class="fa-solid fa-droplet" style="color:#60a5fa;"></i> Sugar Free</button> 
-                <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button> 
-                <button class="btn" onclick="filterFlavors('had', this)">⭐ Had</button> 
-                <button class="btn" onclick="filterFlavors('remaining', this)">⏳ Remaining</button> 
+                <button class="btn active" onclick="filterFlavors('all', this)">All <span class="filter-count" id="count-all">0</span></button> 
+                <button class="btn" onclick="filterFlavors('active', this)"><i class="fa-solid fa-circle-check" style="color:#34d399;"></i> Active <span class="filter-count" id="count-active">0</span></button> 
+                <button class="btn" onclick="filterFlavors('seasonal', this)"><i class="fa-solid fa-snowflake" style="color:#c084fc;"></i> Seasonal <span class="filter-count" id="count-seasonal">0</span></button> 
+                <button class="btn" onclick="filterFlavors('discontinued', this)"><i class="fa-solid fa-box-archive" style="color:#f87171;"></i> Discontinued <span class="filter-count" id="count-discontinued">0</span></button> 
+                <button class="btn" onclick="filterFlavors('sf', this)"><i class="fa-solid fa-droplet" style="color:#60a5fa;"></i> Sugar Free <span class="filter-count" id="count-sf">0</span></button> 
+                <button class="btn" onclick="filterFlavors('intl', this)">🌎 Intl <span class="filter-count" id="count-intl">0</span></button> 
+                <button class="btn" onclick="filterFlavors('had', this)">⭐ Had <span class="filter-count" id="count-had">0</span></button> 
+                <button class="btn" onclick="filterFlavors('remaining', this)">⏳ Remaining <span class="filter-count" id="count-remaining">0</span></button> 
             </div> 
             <div class="switch-container" id="hide-disc-switch" onclick="toggleHideDiscontinued()">
                 <span class="switch-toggle"></span>
@@ -498,7 +512,7 @@
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.7.0</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.0</span>
             </div>
         </div>
     </div> 
@@ -508,6 +522,12 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.8.0</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Live Filter Badge Counts:</strong> Added real-time dynamic count badges to every filter button (All, Active, Seasonal, Discontinued, Sugar Free, International, Had, Remaining).</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.7.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -551,7 +571,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.7.0"; 
+        const APP_VERSION = "4.8.0"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -746,6 +766,37 @@
             renderGrid();
         };
 
+        function updateFilterCounts() {
+            const baseList = hideDiscontinued ? flavors.filter(f => !f.discontinued) : flavors;
+            
+            const countAll = baseList.length;
+            const countActive = flavors.filter(f => !f.discontinued).length;
+            const countSeasonal = baseList.filter(f => f.seasonal).length;
+            const countDiscontinued = flavors.filter(f => f.discontinued).length;
+            const countSf = baseList.filter(f => f.sf).length;
+            const countIntl = baseList.filter(f => isInternationalFlavor(f.name)).length;
+            const countHad = baseList.filter(f => f.checked).length;
+            const countRemaining = baseList.filter(f => !f.checked).length;
+
+            const elAll = document.getElementById('count-all');
+            const elActive = document.getElementById('count-active');
+            const elSeasonal = document.getElementById('count-seasonal');
+            const elDiscontinued = document.getElementById('count-discontinued');
+            const elSf = document.getElementById('count-sf');
+            const elIntl = document.getElementById('count-intl');
+            const elHad = document.getElementById('count-had');
+            const elRemaining = document.getElementById('count-remaining');
+
+            if (elAll) elAll.innerText = countAll;
+            if (elActive) elActive.innerText = countActive;
+            if (elSeasonal) elSeasonal.innerText = countSeasonal;
+            if (elDiscontinued) elDiscontinued.innerText = countDiscontinued;
+            if (elSf) elSf.innerText = countSf;
+            if (elIntl) elIntl.innerText = countIntl;
+            if (elHad) elHad.innerText = countHad;
+            if (elRemaining) elRemaining.innerText = countRemaining;
+        }
+
         function calculateStats() { 
             const activeFlavors = flavors.filter(f => !f.discontinued);
             const baseList = hideDiscontinued ? activeFlavors : flavors;
@@ -786,6 +837,8 @@
                 const sub = remainingCard.querySelector('.stat-sub');
                 if (sub) sub.remove();
             }
+
+            updateFilterCounts();
         } 
 
         function isInternationalFlavor(name) { 

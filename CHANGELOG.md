@@ -1,5 +1,9 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.8.0] - 2026-08-13
+### Added
+- **Live Filter Badge Counts**: Added real-time dynamic count badges to every filter button (All, Active, Seasonal, Discontinued, Sugar Free, International, Had, Remaining) that update with checkbox changes, filter selections, and discontinued toggle states.
+
 ## [v4.7.0] - 2026-08-13
 ### Added
 - **Bottom Telemetry Status Bar**: Moved site traffic metrics (Lifetime Site Visits & Online Live Now) to a bottom status bar with live indicator badges.
