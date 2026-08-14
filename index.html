@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Red Bull Master Tracker v4.5.1</title>
+    <title id="page-title">Red Bull Master Tracker v4.5.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -336,7 +336,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.5.1 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.5.2 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -365,7 +365,7 @@
         </div> 
         <div class="flavor-grid" id="flavor-grid"></div> 
         <footer> 
-            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.1</span></p> 
+            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.2</span></p> 
         </footer> 
     </div> 
 
@@ -374,6 +374,12 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.5.2</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Dedicated Google Apps Script API:</strong> Deployed clean direct-sheet reading backend (`AKfycbxQ4VgWdi0J43SSwXCK9kmr4YhWNyxbKpXE1VfP-isd1C81YPjZy4Y7buUIEL2Vke5Z`) connected to target spreadsheet.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.5.1</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -404,7 +410,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.5.1"; 
+        const APP_VERSION = "4.5.2"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -423,7 +429,7 @@
             databaseURL: "https://redbull-tracker-d99fc-default-rtdb.firebaseio.com/" 
         }; 
         
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzOkrhGHBdsoC284L_zMvSnXSy-2ESh9wh46qU0U7hz-HyHj7-m-Ib2FafW-FJRVQ/exec"; 
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxQ4VgWdi0J43SSwXCK9kmr4YhWNyxbKpXE1VfP-isd1C81YPjZy4Y7buUIEL2Vke5Z/exec"; 
         
         // Comprehensive master flavor catalog baseline
         const DEFAULT_FLAVORS = [

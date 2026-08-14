@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.5.2] - 2026-08-13
+### Added
+- **Automated Clasp Apps Script Deployment**: Created, pushed, and deployed the dedicated Google Apps Script backend (`AKfycbxQ4VgWdi0J43SSwXCK9kmr4YhWNyxbKpXE1VfP-isd1C81YPjZy4Y7buUIEL2Vke5Z`) connected to spreadsheet `1Ey-jAHm0tR8ejP9fCSjQ0PAWtcfGTpMCWkFGdjSoi8c`.
+- **Direct Sheet Integration**: Synced frontend `SHEET_API_URL` to live endpoint.
+
 ## [v4.5.1] - 2026-08-13
 ### Added
 - **Automated Cloud Security Deployment**: Deployed production-grade Realtime Database validation rules directly across Firebase projects (`redbull-tracker-d99fc`, `lbbb-webcounter`, `livecounters-8eaa8`, and `wos-dashboard-38d4c`).
