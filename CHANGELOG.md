@@ -1,9 +1,14 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.6.0] - 2026-08-13
+### Added
+- **Hide Discontinued Toggle**: Added an interactive toggle switch in the controls bar that filters out vaulted flavors and dynamically recalculates the progress percentage, had count, and remaining count for active in-store flavors.
+- **Dedicated Seasonal Filter**: Added a seasonal filter chip to easily isolate limited and seasonal editions (Summer, Winter, Spring, Ice).
+- **Preference Persistence**: Saved the toggle state in local storage so your preferred view is maintained across sessions.
+
 ## [v4.5.3] - 2026-08-13
 ### Added
-- **Live Google Sheet Synchronization**: Connected direct spreadsheet synchronization engine to seamlessly pull live flavor checklists, status flags, and international editions.
-- **Enhanced Data Pipeline**: Streamlined payload parsing for instant progress calculation and grid rendering.
+- **Live Google Sheet Synchronization**: Connected live spreadsheet synchronization engine to seamlessly pull live flavor checklists, status flags, and international editions.
 
 ## [v4.5.2] - 2026-08-13
 ### Added

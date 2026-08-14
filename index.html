@@ -191,7 +191,65 @@
             color: #090e1c; 
             font-weight: 700; 
             border-color: var(--rb-yellow); 
-            box-shadow: 0 2px 10px rgba(255, 204, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(255, 204, 0, 0.3); 
+        } 
+        
+        .switch-container { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            background: rgba(8, 12, 24, 0.6); 
+            border: 1px solid var(--border-color); 
+            padding: 7px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--text-color); 
+            user-select: none; 
+            transition: all 0.2s ease; 
+        } 
+        .switch-container:hover { 
+            border-color: var(--text-muted); 
+            background: rgba(255, 255, 255, 0.05); 
+        } 
+        .switch-toggle { 
+            position: relative; 
+            width: 32px; 
+            height: 18px; 
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 20px; 
+            transition: background 0.2s ease; 
+            display: inline-block; 
+        } 
+        .switch-toggle::after { 
+            content: ''; 
+            position: absolute; 
+            top: 2px; 
+            left: 2px; 
+            width: 14px; 
+            height: 14px; 
+            border-radius: 50%; 
+            background: #fff; 
+            transition: transform 0.2s ease; 
+        } 
+        .switch-container.active { 
+            border-color: rgba(255, 204, 0, 0.4); 
+            background: rgba(255, 204, 0, 0.1); 
+        } 
+        .switch-container.active .switch-toggle { 
+            background: var(--rb-yellow); 
+        } 
+        .switch-container.active .switch-toggle::after { 
+            transform: translateX(14px); 
+            background: #090e1c; 
+        } 
+        .stat-sub { 
+            font-size: 0.68rem; 
+            color: var(--text-muted); 
+            margin-top: 2px; 
+            display: block; 
+            font-weight: 500;
         } 
         
         .flavor-grid { 
@@ -336,7 +394,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.5.3 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.6.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -356,16 +414,21 @@
             <div class="filter-buttons"> 
                 <button class="btn active" onclick="filterFlavors('all', this)">All</button> 
                 <button class="btn" onclick="filterFlavors('active', this)"><i class="fa-solid fa-circle-check" style="color:#34d399;"></i> Active</button> 
+                <button class="btn" onclick="filterFlavors('seasonal', this)"><i class="fa-solid fa-snowflake" style="color:#c084fc;"></i> Seasonal</button> 
                 <button class="btn" onclick="filterFlavors('discontinued', this)"><i class="fa-solid fa-box-archive" style="color:#f87171;"></i> Discontinued</button> 
                 <button class="btn" onclick="filterFlavors('sf', this)"><i class="fa-solid fa-droplet" style="color:#60a5fa;"></i> Sugar Free</button> 
                 <button class="btn" onclick="filterFlavors('intl', this)">🌎 International</button> 
                 <button class="btn" onclick="filterFlavors('had', this)">⭐ Had</button> 
                 <button class="btn" onclick="filterFlavors('remaining', this)">⏳ Remaining</button> 
             </div> 
+            <div class="switch-container" id="hide-disc-switch" onclick="toggleHideDiscontinued()">
+                <span class="switch-toggle"></span>
+                <span id="hide-disc-label"><i class="fa-solid fa-eye-slash" style="font-size: 11px; margin-right: 2px;"></i> Hide Discontinued</span>
+            </div>
         </div> 
         <div class="flavor-grid" id="flavor-grid"></div> 
         <footer> 
-            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.3</span></p> 
+            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.6.0</span></p> 
         </footer> 
     </div> 
 
@@ -375,10 +438,16 @@
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
             <div class="log-entry"> 
+                <span class="log-version">v4.6.0</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Hide Discontinued Toggle:</strong> Added interactive toggle switch that filters out vaulted flavors and recalibrates progress and remaining count to active in-store flavors.</li>
+                    <li><strong>Dedicated Seasonal Filter:</strong> Added dedicated seasonal filter chip to easily isolate limited editions (Summer, Winter, Spring, Ice).</li>
+                </ul> 
+            </div> 
+            <div class="log-entry"> 
                 <span class="log-version">v4.5.3</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
                     <li><strong>Live Google Sheet Synchronization:</strong> Connected live spreadsheet synchronization engine to seamlessly pull live flavor checklists, status flags, and international editions.</li>
-                    <li><strong>Enhanced Data Pipeline:</strong> Streamlined payload parsing for instant progress calculation and grid rendering.</li>
                 </ul> 
             </div> 
             <div class="log-entry"> 
@@ -398,13 +467,6 @@
                 <ul class="log-list"> 
                     <li><strong>Direct Realtime Telemetry:</strong> Connected view counters and concurrent online presence listeners.</li>
                     <li><strong>Offline Resilience:</strong> Added local caching layer so the flavor catalog remains accessible during network interruptions.</li>
-                    <li><strong>Interactive Checklists:</strong> Real-time progress percentage recalculations on card interaction.</li>
-                </ul> 
-            </div> 
-            <div class="log-entry"> 
-                <span class="log-version">v4.4.2</span><span class="log-date">June 2026</span> 
-                <ul class="log-list"> 
-                    <li>Synchronized versioning across all UI elements and centralized configuration control.</li> 
                 </ul> 
             </div> 
         </div> 
@@ -588,12 +650,64 @@
             } 
         } 
 
+        let hideDiscontinued = localStorage.getItem('rb_hide_discontinued') === 'true';
+
+        function updateSwitchUI() {
+            const sw = document.getElementById('hide-disc-switch');
+            if (sw) {
+                if (hideDiscontinued) sw.classList.add('active');
+                else sw.classList.remove('active');
+            }
+        }
+
+        window.toggleHideDiscontinued = () => {
+            hideDiscontinued = !hideDiscontinued;
+            localStorage.setItem('rb_hide_discontinued', hideDiscontinued);
+            updateSwitchUI();
+            calculateStats();
+            renderGrid();
+        };
+
         function calculateStats() { 
-            const total = flavors.length; 
-            const checkedCount = flavors.filter(f => f.checked).length; 
+            const activeFlavors = flavors.filter(f => !f.discontinued);
+            const baseList = hideDiscontinued ? activeFlavors : flavors;
+            
+            const total = baseList.length; 
+            const checkedCount = baseList.filter(f => f.checked).length; 
+            const remainingCount = total - checkedCount;
+
+            const allDiscontinued = flavors.filter(f => f.discontinued);
+            const discHad = allDiscontinued.filter(f => f.checked).length;
+            const discRemaining = allDiscontinued.length - discHad;
+
             document.getElementById('stat-progress').innerText = total > 0 ? Math.round((checkedCount / total) * 100) + "%" : "0%"; 
             document.getElementById('stat-count').innerText = `${checkedCount} / ${total}`; 
-            document.getElementById('stat-remaining').innerText = total - checkedCount; 
+            document.getElementById('stat-remaining').innerText = remainingCount; 
+
+            const progressCard = document.getElementById('stat-progress').parentElement;
+            const countCard = document.getElementById('stat-count').parentElement;
+            const remainingCard = document.getElementById('stat-remaining').parentElement;
+
+            if (hideDiscontinued) {
+                progressCard.querySelector('.label').innerText = "Active Progress";
+                countCard.querySelector('.label').innerText = "Active Had";
+                remainingCard.querySelector('.label').innerText = "Active Remaining";
+                
+                let sub = remainingCard.querySelector('.stat-sub');
+                if (!sub) {
+                    sub = document.createElement('span');
+                    sub.className = 'stat-sub';
+                    remainingCard.appendChild(sub);
+                }
+                sub.innerText = `${discRemaining} Vaulted Hidden`;
+            } else {
+                progressCard.querySelector('.label').innerText = "Total Progress";
+                countCard.querySelector('.label').innerText = "Flavors Had";
+                remainingCard.querySelector('.label').innerText = "Remaining";
+                
+                const sub = remainingCard.querySelector('.stat-sub');
+                if (sub) sub.remove();
+            }
         } 
 
         function isInternationalFlavor(name) { 
@@ -605,8 +719,10 @@
             grid.innerHTML = ''; 
             
             const filtered = flavors.filter(f => { 
+                if (hideDiscontinued && f.discontinued && currentFilter !== 'discontinued') return false;
                 if (searchQuery && !f.name.toLowerCase().includes(searchQuery.toLowerCase())) return false; 
                 if (currentFilter === 'active') return !f.discontinued; 
+                if (currentFilter === 'seasonal') return f.seasonal; 
                 if (currentFilter === 'discontinued') return f.discontinued; 
                 if (currentFilter === 'sf') return f.sf; 
                 if (currentFilter === 'intl') return isInternationalFlavor(f.name); 
@@ -681,6 +797,7 @@
 
         document.addEventListener("DOMContentLoaded", () => { 
             initLocalFlavors();
+            updateSwitchUI();
             calculateStats();
             renderGrid();
             initFirebaseTelemetry(); 
