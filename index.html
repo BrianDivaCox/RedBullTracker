@@ -98,13 +98,20 @@
         
         .stats-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); 
-            gap: 14px; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 16px; 
+            max-width: 820px;
+            margin: 0 auto;
         } 
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         .stat-card { 
             background: rgba(18, 24, 41, 0.7); 
             backdrop-filter: blur(8px);
-            padding: 16px 12px; 
+            padding: 18px 16px; 
             border-radius: 14px; 
             border: 1px solid var(--border-color); 
             text-align: center; 
@@ -116,21 +123,70 @@
         }
         .stat-card .num { 
             font-family: 'Outfit', sans-serif;
-            font-size: 2.1rem; 
+            font-size: 2.2rem; 
             font-weight: 800; 
             color: var(--rb-yellow); 
             display: block; 
             line-height: 1.1;
             margin-bottom: 4px;
         } 
-        .stat-card.lifetime-card .num { color: var(--rb-neon-cyan); } 
-        .stat-card.live-now-card .num { color: var(--rb-neon-green); text-shadow: 0 0 12px rgba(16, 185, 129, 0.4); } 
         .stat-card .label { 
-            font-size: 0.75rem; 
+            font-size: 0.78rem; 
             color: var(--text-muted); 
             text-transform: uppercase; 
             letter-spacing: 1px; 
             font-weight: 600;
+        } 
+        
+        .bottom-status-bar {
+            margin-top: 48px;
+            background: rgba(18, 24, 41, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .status-items {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        .status-badge .num {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: #fff;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2s infinite ease-in-out;
+            display: inline-block;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .footer-meta {
+            font-size: 0.82rem;
+            color: var(--text-muted);
         } 
         
         .controls { 
@@ -394,7 +450,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.6.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.7.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -402,8 +458,6 @@
                 <div class="stat-card"><span class="num" id="stat-progress">0%</span><span class="label">Total Progress</span></div> 
                 <div class="stat-card"><span class="num" id="stat-count">0 / 0</span><span class="label">Flavors Had</span></div> 
                 <div class="stat-card"><span class="num" id="stat-remaining">0</span><span class="label">Remaining</span></div> 
-                <div class="stat-card lifetime-card"><span class="num" id="stat-visitors">...</span><span class="label">Total Site Visits</span></div> 
-                <div class="stat-card live-now-card"><span class="num" id="stat-live-now" style="color:#ef4444;">Offline</span><span class="label">🟢 Live Now</span></div> 
             </div> 
         </header> 
         <div class="controls"> 
@@ -427,9 +481,26 @@
             </div>
         </div> 
         <div class="flavor-grid" id="flavor-grid"></div> 
-        <footer> 
-            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.6.0</span></p> 
-        </footer> 
+        
+        <div class="bottom-status-bar">
+            <div class="status-items">
+                <div class="status-badge">
+                    <i class="fa-solid fa-eye" style="color: #38bdf8;"></i> 
+                    <span><span class="num" id="stat-visitors">...</span> Total Site Visits</span>
+                </div>
+                <div class="status-badge">
+                    <span class="live-dot"></span> 
+                    <span><span class="num" id="stat-live-now" style="color: #10b981;">1</span> Online Now</span>
+                </div>
+                <div class="status-badge">
+                    <i class="fa-solid fa-bolt" style="color: var(--rb-yellow);"></i> 
+                    <span>Telemetry: <strong style="color:#10b981;">Live</strong></span>
+                </div>
+            </div>
+            <div class="footer-meta">
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.7.0</span>
+            </div>
+        </div>
     </div> 
 
     <!-- CHANGELOG MODAL -->
@@ -437,6 +508,13 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.7.0</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Bottom Telemetry Status Bar:</strong> Relocated site traffic telemetry counters (Lifetime Site Visits & Online Live Now) to a sleek bottom status bar.</li>
+                    <li><strong>Streamlined 3-Column Header:</strong> Expanded primary tracker stats to a balanced, high-focus 3-column metric layout (Progress, Had, Remaining).</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.6.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -473,7 +551,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.5.3"; 
+        const APP_VERSION = "4.7.0"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 

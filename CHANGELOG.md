@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.7.0] - 2026-08-13
+### Added
+- **Bottom Telemetry Status Bar**: Moved site traffic metrics (Lifetime Site Visits & Online Live Now) to a bottom status bar with live indicator badges.
+- **Streamlined 3-Column Header**: Expanded primary tracker cards into a 3-column metric layout (Progress, Had, Remaining).
+
 ## [v4.6.0] - 2026-08-13
 ### Added
 - **Hide Discontinued Toggle**: Added an interactive toggle switch in the controls bar that filters out vaulted flavors and dynamically recalculates the progress percentage, had count, and remaining count for active in-store flavors.
