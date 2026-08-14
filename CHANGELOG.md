@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.5.1] - 2026-08-13
+### Added
+- **Automated Cloud Security Deployment**: Deployed production-grade Realtime Database validation rules directly across Firebase projects (`redbull-tracker-d99fc`, `lbbb-webcounter`, `livecounters-8eaa8`, and `wos-dashboard-38d4c`).
+- **Project Configuration**: Added local `firebase.json` and `database.rules.json` to version control.
+
 ## [v4.5.0] - 2026-08-13
 ### Added
 - **Direct Firebase Lifetime Telemetry**: Reconnected Total Site Visits directly to Firebase RTDB node `Counters/RedBull/totalViewCount` with atomic `runTransaction` increments and live updates.

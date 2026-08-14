@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "Counters": {
+      "RedBull": {
+        "totalViewCount": {
+          ".read": true,
+          ".write": "newData.isNumber() && (newData.val() >= data.val() || !data.exists())",
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "visitorsConnected": {
+          ".read": true,
+          "$sessionId": {
+            ".write": true,
+            ".validate": "newData.val() === true"
+          }
+        },
+        "$other": {
+          ".read": false,
+          ".write": false
+        }
+      }
+    }
+  }
+}

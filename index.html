@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Red Bull Master Tracker v4.5.0</title>
+    <title id="page-title">Red Bull Master Tracker v4.5.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -336,7 +336,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.5.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.5.1 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -365,7 +365,7 @@
         </div> 
         <div class="flavor-grid" id="flavor-grid"></div> 
         <footer> 
-            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.0</span></p> 
+            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.1</span></p> 
         </footer> 
     </div> 
 
@@ -375,12 +375,17 @@
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
             <div class="log-entry"> 
+                <span class="log-version">v4.5.1</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Direct Firebase Security Deployment:</strong> Deployed hardened database validation rules directly to Firebase CLI for all projects.</li>
+                </ul> 
+            </div> 
+            <div class="log-entry"> 
                 <span class="log-version">v4.5.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
                     <li><strong>Direct Firebase Lifetime Telemetry:</strong> Reconnected Total Site Visits directly to Firebase RTDB <code>Counters/RedBull/totalViewCount</code> with atomic increment transactions.</li>
                     <li><strong>Fault-Tolerant Flavor Architecture:</strong> Added resilient offline catalog & localStorage caching so the tracker never shows 0/0 or crashes when Google Sheet quotas are limited.</li>
                     <li><strong>Interactive Persistence:</strong> Toggling flavor cards saves instantly to local state and updates progress dynamically.</li>
-                    <li><strong>Database Security Configuration:</strong> Hardened Firebase Realtime Database rules scoped to <code>/Counters/RedBull</code>.</li>
                 </ul> 
             </div> 
             <div class="log-entry"> 
@@ -399,7 +404,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.5.0"; 
+        const APP_VERSION = "4.5.1"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
