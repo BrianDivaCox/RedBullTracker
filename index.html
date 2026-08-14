@@ -464,7 +464,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.8.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.8.1 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -512,7 +512,7 @@
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.0</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.1</span>
             </div>
         </div>
     </div> 
@@ -522,6 +522,12 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.8.1</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Repository Security Hardening:</strong> Added comprehensive .gitignore guardrails to prevent accidental credential or environment leaks.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.8.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -571,7 +577,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.8.0"; 
+        const APP_VERSION = "4.8.1"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 

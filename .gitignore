@@ -1,0 +1,25 @@
+# Credentials and secrets
+.clasprc.json
+*.env
+*.env.*
+*.local
+secrets/
+
+# Node modules & logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Backups and archives
+*.zip
+*.tar.gz
+*.bak
+backups/
+
+# Operating System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

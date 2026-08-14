@@ -1,5 +1,9 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.8.1] - 2026-08-13
+### Added
+- **Repository Security Hardening**: Added comprehensive `.gitignore` guardrails to prevent accidental credential, environment variable, or token commits.
+
 ## [v4.8.0] - 2026-08-13
 ### Added
 - **Live Filter Badge Counts**: Added real-time dynamic count badges to every filter button (All, Active, Seasonal, Discontinued, Sugar Free, International, Had, Remaining) that update with checkbox changes, filter selections, and discontinued toggle states.
