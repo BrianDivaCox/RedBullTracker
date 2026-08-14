@@ -464,7 +464,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.8.1 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.8.2 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -506,13 +506,13 @@
                     <span class="live-dot"></span> 
                     <span><span class="num" id="stat-live-now" style="color: #10b981;">1</span> Online Now</span>
                 </div>
-                <div class="status-badge">
-                    <i class="fa-solid fa-bolt" style="color: var(--rb-yellow);"></i> 
-                    <span>Telemetry: <strong style="color:#10b981;">Live</strong></span>
+                <div class="status-badge" onclick="fetchTrackerData()" style="cursor:pointer;" title="Click to refresh from Google Sheet">
+                    <i class="fa-solid fa-arrows-rotate" id="sync-icon" style="color: var(--rb-yellow); transition: transform 0.5s ease;"></i> 
+                    <span>Sheet Sync: <strong id="sync-status" style="color:#10b981;">Live</strong></span>
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.1</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.8.2</span>
             </div>
         </div>
     </div> 
@@ -522,6 +522,12 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v4.8.2</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Real-Time Sheet Synchronization:</strong> Added 30-second live background polling and tab-focus auto-sync so any new flavors added to the Google Sheet update seamlessly.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.8.1</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -577,7 +583,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.8.1"; 
+        const APP_VERSION = "4.8.2"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -719,9 +725,13 @@
 
         // --- 3. GOOGLE SHEETS TELEMETRY & SYNC ---
         async function fetchTrackerData() { 
+            const syncIcon = document.getElementById('sync-icon');
+            const syncStatus = document.getElementById('sync-status');
+            if (syncIcon) syncIcon.style.transform = 'rotate(360deg)';
+
             try { 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
 
                 const response = await fetch(SHEET_API_URL, { signal: controller.signal }); 
                 clearTimeout(timeoutId);
@@ -731,6 +741,7 @@
                 const payload = await response.json(); 
                 if (payload.status === "error") {
                     console.warn("Google Sheet API Quota Note:", payload.message);
+                    if (syncStatus) syncStatus.style.color = '#eab308';
                     return; // Retain current flavor list safely
                 }
 
@@ -748,10 +759,16 @@
                     persistFlavors();
                     calculateStats(); 
                     renderGrid(); 
+                    if (syncStatus) syncStatus.style.color = '#10b981';
                 }
             } catch (e) { 
                 console.info("Google Sheet API sync in standby. Running local cache.", e.message); 
-            } 
+                if (syncStatus) syncStatus.style.color = '#94a3b8';
+            } finally {
+                setTimeout(() => {
+                    if (syncIcon) syncIcon.style.transform = 'none';
+                }, 600);
+            }
         } 
 
         let hideDiscontinued = localStorage.getItem('rb_hide_discontinued') === 'true';
@@ -939,6 +956,15 @@
             renderGrid();
             initFirebaseTelemetry(); 
             fetchTrackerData(); 
+
+            // Auto-refresh when user focuses or returns to the browser tab
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") fetchTrackerData();
+            });
+            window.addEventListener("focus", () => fetchTrackerData());
+
+            // Background polling every 30 seconds
+            setInterval(fetchTrackerData, 30000);
         }); 
     </script> 
 </body> 

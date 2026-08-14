@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v4.8.2] - 2026-08-13
+### Added
+- **Live Auto-Sync & Tab-Focus Refresh**: Integrated 30-second live background polling and tab-focus auto-sync so any new flavors, checkboxes, or notes added to Google Sheets update on screen in real time.
+- **Interactive Sync Status Indicator**: Added a clickable sync status badge with rotational animation in the bottom status bar for manual instant refresh.
+
 ## [v4.8.1] - 2026-08-13
 ### Added
 - **Repository Security Hardening**: Added comprehensive `.gitignore` guardrails to prevent accidental credential, environment variable, or token commits.
