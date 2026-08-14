@@ -336,7 +336,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.5.2 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v4.5.3 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -365,7 +365,7 @@
         </div> 
         <div class="flavor-grid" id="flavor-grid"></div> 
         <footer> 
-            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.2</span></p> 
+            <p>&copy; 2026 Red Bull Completionist Portal. <span id="ui-footer-version">Current Version: v4.5.3</span></p> 
         </footer> 
     </div> 
 
@@ -375,23 +375,30 @@
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
             <div class="log-entry"> 
+                <span class="log-version">v4.5.3</span><span class="log-date">August 2026</span> 
+                <ul class="log-list"> 
+                    <li><strong>Live Google Sheet Synchronization:</strong> Connected live spreadsheet synchronization engine to seamlessly pull live flavor checklists, status flags, and international editions.</li>
+                    <li><strong>Enhanced Data Pipeline:</strong> Streamlined payload parsing for instant progress calculation and grid rendering.</li>
+                </ul> 
+            </div> 
+            <div class="log-entry"> 
                 <span class="log-version">v4.5.2</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
-                    <li><strong>Dedicated Google Apps Script API:</strong> Deployed clean direct-sheet reading backend (`AKfycbxQ4VgWdi0J43SSwXCK9kmr4YhWNyxbKpXE1VfP-isd1C81YPjZy4Y7buUIEL2Vke5Z`) connected to target spreadsheet.</li>
+                    <li><strong>Dedicated Backend Integration:</strong> Configured direct spreadsheet data service with error handling.</li>
                 </ul> 
             </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.5.1</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
-                    <li><strong>Direct Firebase Security Deployment:</strong> Deployed hardened database validation rules directly to Firebase CLI for all projects.</li>
+                    <li><strong>Database Security Hardening:</strong> Deployed real-time validation policies to prevent unauthorized data modification.</li>
                 </ul> 
             </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.5.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
-                    <li><strong>Direct Firebase Lifetime Telemetry:</strong> Reconnected Total Site Visits directly to Firebase RTDB <code>Counters/RedBull/totalViewCount</code> with atomic increment transactions.</li>
-                    <li><strong>Fault-Tolerant Flavor Architecture:</strong> Added resilient offline catalog & localStorage caching so the tracker never shows 0/0 or crashes when Google Sheet quotas are limited.</li>
-                    <li><strong>Interactive Persistence:</strong> Toggling flavor cards saves instantly to local state and updates progress dynamically.</li>
+                    <li><strong>Direct Realtime Telemetry:</strong> Connected view counters and concurrent online presence listeners.</li>
+                    <li><strong>Offline Resilience:</strong> Added local caching layer so the flavor catalog remains accessible during network interruptions.</li>
+                    <li><strong>Interactive Checklists:</strong> Real-time progress percentage recalculations on card interaction.</li>
                 </ul> 
             </div> 
             <div class="log-entry"> 
@@ -400,17 +407,11 @@
                     <li>Synchronized versioning across all UI elements and centralized configuration control.</li> 
                 </ul> 
             </div> 
-            <div class="log-entry"> 
-                <span class="log-version">v4.3.0</span><span class="log-date">June 2026</span> 
-                <ul class="log-list"> 
-                    <li>Migrated Realtime Database engine to dedicated project (<code>redbull-tracker-d99fc</code>).</li> 
-                </ul> 
-            </div> 
         </div> 
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.5.2"; 
+        const APP_VERSION = "4.5.3"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -429,7 +430,7 @@
             databaseURL: "https://redbull-tracker-d99fc-default-rtdb.firebaseio.com/" 
         }; 
         
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxQ4VgWdi0J43SSwXCK9kmr4YhWNyxbKpXE1VfP-isd1C81YPjZy4Y7buUIEL2Vke5Z/exec"; 
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwzXJ_FQsxQzCmTiVxKhq6XYONFPHBGHGcmsJdeZMn1CbI5iUdTXiZxiQXKAVM7J-jO/exec"; 
         
         // Comprehensive master flavor catalog baseline
         const DEFAULT_FLAVORS = [
@@ -569,24 +570,15 @@
 
                 const sheetFlavors = Array.isArray(payload) ? payload : (payload.flavors || []);
                 if (sheetFlavors.length > 0) {
-                    // Merge sheet flavor states while respecting local checklist overrides
-                    sheetFlavors.forEach(sf => {
-                        const existing = flavors.find(f => f.name.toLowerCase() === sf.name.toLowerCase() || f.id === sf.id);
-                        if (existing) {
-                            existing.discontinued = sf.discontinued !== undefined ? sf.discontinued : existing.discontinued;
-                            existing.sf = sf.sf !== undefined ? sf.sf : existing.sf;
-                            if (sf.checked !== undefined) existing.checked = sf.checked;
-                        } else {
-                            flavors.push({
-                                id: sf.id || flavors.length + 1,
-                                name: sf.name,
-                                sf: !!sf.sf,
-                                discontinued: !!sf.discontinued,
-                                seasonal: !!sf.seasonal,
-                                checked: !!sf.checked
-                            });
-                        }
-                    });
+                    flavors = sheetFlavors.map((sf, idx) => ({
+                        id: sf.id || (idx + 1),
+                        name: sf.name,
+                        checked: !!sf.checked,
+                        sf: !!sf.sf,
+                        discontinued: !!sf.discontinued,
+                        seasonal: !!sf.seasonal,
+                        country: sf.country || ""
+                    }));
                     persistFlavors();
                     calculateStats(); 
                     renderGrid(); 
