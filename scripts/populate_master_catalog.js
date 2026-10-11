@@ -25,6 +25,7 @@ const MASTER_FLAVORS = [
   { name: "The Pink Edition: Wild Berries", sf: false, discontinued: false, seasonal: false, checked: true },
   { name: "The Red Edition: Watermelon", sf: false, discontinued: false, seasonal: false, checked: true },
   { name: "The Sea Blue Edition: Juneberry", sf: false, discontinued: false, seasonal: false, checked: true },
+  { name: "The Apple Edition: Fuji Apple & Ginger", sf: false, discontinued: false, seasonal: false, checked: false },
   { name: "The Yellow Edition: Tropical", sf: false, discontinued: false, seasonal: false, checked: true },
 
   // --- 3. SEASONAL EDITIONS (2016 - 2026) ---

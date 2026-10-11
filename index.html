@@ -465,7 +465,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v5.0.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v5.1.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -513,7 +513,7 @@
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v5.0.0</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v5.1.0</span>
             </div>
         </div>
     </div> 
@@ -523,6 +523,13 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v5.1.0</span><span class="log-date">October 2026</span> 
+                <ul class="log-list"> 
+                    <li>Added The Apple Edition (Fuji Apple and Ginger).</li>
+                    <li>Synchronized live Google Sheet catalog to 72 flavors.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v5.0.0</span><span class="log-date">October 2026</span> 
                 <ul class="log-list"> 
@@ -602,7 +609,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "5.0.0"; 
+        const APP_VERSION = "5.1.0"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -640,7 +647,8 @@
             { id: 13, name: "The Pink Edition: Wild Berries", sf: false, discontinued: false, seasonal: false, checked: true },
             { id: 14, name: "The Red Edition: Watermelon", sf: false, discontinued: false, seasonal: false, checked: true },
             { id: 15, name: "The Sea Blue Edition: Juneberry", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 16, name: "The Yellow Edition: Tropical", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 16, name: "The Apple Edition: Fuji Apple & Ginger", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 17, name: "The Yellow Edition: Tropical", sf: false, discontinued: false, seasonal: false, checked: true },
             { id: 17, name: "The Spring Edition: Cherry Sakura (2026)", sf: false, discontinued: false, seasonal: true, checked: true },
             { id: 18, name: "The Summer Edition: Sudachi Lime (2026)", sf: false, discontinued: false, seasonal: true, checked: false },
             { id: 19, name: "The Winter Edition: Spiced Orchard (2025/2026)", sf: false, discontinued: false, seasonal: true, checked: false },

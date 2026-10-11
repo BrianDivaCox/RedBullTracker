@@ -1,5 +1,10 @@
 # Red Bull Master Tracker - Changelog
 
+## [v5.1.0] - 2026-10-10
+### Added
+- Added The Apple Edition (Fuji Apple and Ginger).
+- Synchronized live Google Sheet catalog to 72 flavors.
+
 ## [v5.0.0] - 2026-10-10
 ### Added
 - Master catalog expanded to 71 flavors through 2026.
