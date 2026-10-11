@@ -3,7 +3,7 @@
  * Crawls product registry feeds and adds verified uncataloged flavors to your Google Sheet.
  */
 
-const API_ENDPOINT = "https://script.google.com/macros/s/AKfycby3SoNI4chZ5TH_5ff5fxsw8kGLPoZtb5yqUx65MNFkmQ47mgBXzuPdp27lzL8t9Jz7/exec";
+const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbyYKKMWJyYjwEUFBZmqQs5rdYztIhy1q36V6BeQNRy3-inmylm9YVsdwJg7Bp1z-nmP/exec";
 
 // Public global registries and flavor feeds (OpenFoodFacts API v2)
 const REGISTRY_SOURCES = [

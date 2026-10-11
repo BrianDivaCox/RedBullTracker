@@ -120,7 +120,7 @@ function doGet(e) {
         const val = row[seasonIdx];
         isSeason = (val === true || String(val).toLowerCase() === "true" || String(val).toLowerCase() === "yes");
       } else {
-        isSeason = flavorName.toLowerCase().includes("edition") || flavorName.toLowerCase().includes("spring") || flavorName.toLowerCase().includes("summer") || flavorName.toLowerCase().includes("winter");
+        isSeason = flavorName.toLowerCase().includes("spring") || flavorName.toLowerCase().includes("summer") || flavorName.toLowerCase().includes("winter") || flavorName.toLowerCase().includes("ice edition") || flavorName.toLowerCase().includes("iced edition");
       }
 
       const country = countryIdx !== -1 ? String(row[countryIdx] || "").trim() : "";
@@ -172,6 +172,77 @@ function doPost(e) {
     }
 
     const action = body.action || "addFlavor";
+
+    if (action === "resetMasterCatalog") {
+      let ss;
+      try {
+        ss = SpreadsheetApp.openById(TARGET_SPREADSHEET_ID);
+      } catch(err) {
+        ss = SpreadsheetApp.getActiveSpreadsheet();
+      }
+
+      const allSheets = ss.getSheets();
+      let sheet = null;
+      for (let i = 0; i < allSheets.length; i++) {
+        if (allSheets[i].getSheetId() === 30390711 || allSheets[i].getName().toLowerCase().includes("red bull") || allSheets[i].getName().toLowerCase().includes("flavor")) {
+          sheet = allSheets[i];
+          break;
+        }
+      }
+      if (!sheet && allSheets.length > 0) sheet = allSheets[0];
+
+      const data = sheet.getDataRange().getValues();
+      let headerRowIndex = 0;
+      for (let r = 0; r < Math.min(10, data.length); r++) {
+        const rowStr = data[r].map(c => String(c).toLowerCase()).join(" ");
+        if (rowStr.includes("flavor") || rowStr.includes("name") || rowStr.includes("had") || rowStr.includes("tried")) {
+          headerRowIndex = r;
+          break;
+        }
+      }
+
+      const headers = data[headerRowIndex].map(h => String(h).trim().toLowerCase());
+      let nameIdx = headers.findIndex(h => h.includes("name") || h.includes("flavor") || h.includes("title") || h.includes("edition"));
+      if (nameIdx === -1) nameIdx = 0;
+      let checkIdx = headers.findIndex(h => h.includes("check") || h.includes("had") || h.includes("tried") || h.includes("status"));
+      let sfIdx = headers.findIndex(h => h.includes("sugar") || h.includes("sf") || h.includes("zero"));
+      let discIdx = headers.findIndex(h => h.includes("discontinued") || h.includes("vault") || h.includes("retired") || h.includes("active"));
+
+      const lastRow = sheet.getLastRow();
+      if (lastRow > headerRowIndex + 1) {
+        sheet.getRange(headerRowIndex + 2, 1, lastRow - (headerRowIndex + 1), sheet.getLastColumn()).clearContent();
+      }
+
+      const flavorsToAdd = body.flavors || [];
+      const rowsToAdd = [];
+
+      for (let item of flavorsToAdd) {
+        const newRow = new Array(headers.length).fill("");
+        newRow[nameIdx] = item.name;
+        if (checkIdx !== -1) newRow[checkIdx] = !!item.checked;
+        if (sfIdx !== -1) newRow[sfIdx] = !!item.sf;
+        if (discIdx !== -1) {
+          if (headers[discIdx].includes("active")) {
+            newRow[discIdx] = item.discontinued ? false : true;
+          } else {
+            newRow[discIdx] = !!item.discontinued;
+          }
+        }
+        rowsToAdd.push(newRow);
+      }
+
+      if (rowsToAdd.length > 0) {
+        sheet.getRange(headerRowIndex + 2, 1, rowsToAdd.length, headers.length).setValues(rowsToAdd);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "ok",
+        action: "resetMasterCatalog",
+        total: rowsToAdd.length,
+        hadCount: flavorsToAdd.filter(f => f.checked).length
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (action === "addFlavor" || action === "batchAdd") {
       let ss;
       try {

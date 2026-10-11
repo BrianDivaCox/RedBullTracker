@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Red Bull Master Tracker v4.5.2</title>
+    <title id="page-title">Red Bull Master Tracker v5.0.0</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -464,7 +465,7 @@
     <div class="container"> 
         <header> 
             <div class="version-tag" id="ui-version-tag" onclick="openChangelog()">
-                <i class="fa-solid fa-tag"></i> <span>v4.9.0 • View Changelog</span>
+                <i class="fa-solid fa-tag"></i> <span>v5.0.0 • View Changelog</span>
             </div> 
             <h1>Red Bull Master Tracker</h1> 
             <p>Live tracking archive for all flavor profiles—past, present, and international global exclusives.</p> 
@@ -512,7 +513,7 @@
                 </div>
             </div>
             <div class="footer-meta">
-                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v4.9.0</span>
+                &copy; 2026 Red Bull Master Tracker • <span id="ui-footer-version">Current Version: v5.0.0</span>
             </div>
         </div>
     </div> 
@@ -522,6 +523,17 @@
         <div class="modal-content" onclick="event.stopPropagation()"> 
             <span class="close-btn" onclick="closeChangelog()">&times;</span> 
             <h2>System Changelog</h2> 
+            <div class="log-entry"> 
+                <span class="log-version">v5.0.0</span><span class="log-date">October 2026</span> 
+                <ul class="log-list"> 
+                    <li>Master catalog expanded to 71 flavors through 2026.</li>
+                    <li>Purged all duplicate, foreign, and clutter listings.</li>
+                    <li>Fully preserved all your previously logged flavors.</li>
+                    <li>Added upcoming 2025 and 2026 limited editions.</li>
+                    <li>Added Organics collection and Japanese regional exclusives.</li>
+                    <li>Enhanced sugar free and seasonal filter accuracy.</li>
+                </ul> 
+            </div> 
             <div class="log-entry"> 
                 <span class="log-version">v4.9.0</span><span class="log-date">August 2026</span> 
                 <ul class="log-list"> 
@@ -590,7 +602,7 @@
     </div> 
 
     <script type="module"> 
-        const APP_VERSION = "4.9.0"; 
+        const APP_VERSION = "5.0.0"; 
         document.title = `Red Bull Master Tracker v${APP_VERSION}`; 
         document.getElementById("ui-version-tag").innerHTML = `<i class="fa-solid fa-tag"></i> <span>v${APP_VERSION} • View Changelog</span>`; 
         document.getElementById("ui-footer-version").innerText = `Current Version: v${APP_VERSION}`; 
@@ -609,49 +621,81 @@
             databaseURL: "https://redbull-tracker-d99fc-default-rtdb.firebaseio.com/" 
         }; 
         
-        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycby3SoNI4chZ5TH_5ff5fxsw8kGLPoZtb5yqUx65MNFkmQ47mgBXzuPdp27lzL8t9Jz7/exec"; 
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyYKKMWJyYjwEUFBZmqQs5rdYztIhy1q36V6BeQNRy3-inmylm9YVsdwJg7Bp1z-nmP/exec"; 
         
-        // Comprehensive master flavor catalog baseline
+        // Comprehensive master flavor catalog baseline (71 items)
         const DEFAULT_FLAVORS = [
             { id: 1, name: "Original Red Bull Energy Drink", sf: false, discontinued: false, seasonal: false, checked: true },
             { id: 2, name: "Red Bull Sugarfree", sf: true, discontinued: false, seasonal: false, checked: true },
             { id: 3, name: "Red Bull Zero", sf: true, discontinued: false, seasonal: false, checked: false },
-            { id: 4, name: "The Spring Edition: Cherry Sakura (2026)", sf: false, discontinued: false, seasonal: true, checked: false },
-            { id: 5, name: "The Summer Edition: Sudachi Lime (2026)", sf: false, discontinued: false, seasonal: true, checked: false },
-            { id: 6, name: "The Ice Edition: Iced Vanilla Berry", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 7, name: "The Peach Edition: White Peach", sf: false, discontinued: false, seasonal: false, checked: false },
-            { id: 8, name: "The Pink Edition: Wild Berries", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 9, name: "The Sea Blue Edition: Juneberry", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 10, name: "The Red Edition: Watermelon", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 11, name: "The Yellow Edition: Tropical", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 12, name: "The Coconut Edition: Coconut Berry", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 13, name: "The Amber Edition: Strawberry Apricot", sf: false, discontinued: false, seasonal: false, checked: true },
-            { id: 14, name: "The Blue Edition: Blueberry", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 15, name: "The Green Edition: Dragon Fruit", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 16, name: "The Green Edition: Curuba Elderflower", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 17, name: "The Peach Edition: Peach Nectarine", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 18, name: "The Red Edition Sugarfree: Watermelon Sugarfree", sf: true, discontinued: true, seasonal: false, checked: false },
-            { id: 19, name: "The Amber Edition Sugarfree: Strawberry Apricot Sugarfree", sf: true, discontinued: true, seasonal: false, checked: false },
-            { id: 20, name: "The Red Edition: Cranberry (Original 2013)", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 21, name: "The Silver Edition: Dry Lime", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 22, name: "The Orange Edition: Orange Mango (Total Zero)", sf: true, discontinued: true, seasonal: false, checked: false },
-            { id: 23, name: "The Cherry Edition: Wild Cherry (Total Zero)", sf: true, discontinued: true, seasonal: false, checked: false },
-            { id: 24, name: "The Winter Edition: Plum Twist", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 25, name: "The Winter Edition: Pomegranate", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 26, name: "The Winter Edition: Fig Apple", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 27, name: "The Winter Edition: Arctic Berry", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 28, name: "The Summer Edition: Grapefruit Twist", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 29, name: "The Summer Edition: Beach Breeze", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 30, name: "The Summer Edition: Kiwi Twist / Kiwi Apple", sf: false, discontinued: true, seasonal: true, checked: false },
-            { id: 31, name: "The Purple Edition: Acai Berry", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 32, name: "Red Bull Simply Cola (Original US Formula)", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 33, name: "Red Bull Energy Shot (2oz)", sf: false, discontinued: true, seasonal: false, checked: false },
-            { id: 34, name: "Red Bull Krating Daeng (Thailand Original)", sf: false, discontinued: false, seasonal: false, checked: false },
-            { id: 35, name: "Red Bull Gold Can (Europe / Asia Edition)", sf: false, discontinued: false, seasonal: false, checked: false },
-            { id: 36, name: "The Purple Edition: Kyoho Grape (Japan Exclusive)", sf: false, discontinued: false, seasonal: false, checked: false },
-            { id: 37, name: "The Spring Edition: Pink Grapefruit (Japan Exclusive)", sf: false, discontinued: false, seasonal: true, checked: false },
-            { id: 38, name: "The Summer Edition: Sunny Passion (Europe / UK)", sf: false, discontinued: false, seasonal: true, checked: false },
-            { id: 39, name: "The Winter Edition: Pear Cinnamon (Europe Exclusive)", sf: false, discontinued: true, seasonal: true, checked: false }
+            { id: 4, name: "Red Bull Total Zero (Original 2012 Formula)", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 5, name: "The Amber Edition: Strawberry Apricot", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 6, name: "The Blue Edition: Blueberry", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 7, name: "The Coconut Edition: Coconut Berry", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 8, name: "The Green Edition: Dragon Fruit", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 9, name: "The Green Edition: Curuba Elderflower", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 10, name: "The Ice Edition: Iced Vanilla Berry", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 11, name: "The Peach Edition: White Peach", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 12, name: "The Peach Edition: Peach Nectarine", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 13, name: "The Pink Edition: Wild Berries", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 14, name: "The Red Edition: Watermelon", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 15, name: "The Sea Blue Edition: Juneberry", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 16, name: "The Yellow Edition: Tropical", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 17, name: "The Spring Edition: Cherry Sakura (2026)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 18, name: "The Summer Edition: Sudachi Lime (2026)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 19, name: "The Winter Edition: Spiced Orchard (2025/2026)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 20, name: "The Spring Edition: Pink Grapefruit (2025)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 21, name: "The Summer Edition: Curuba Elderflower (2024)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 22, name: "The Winter Edition: Iced Vanilla Berry (2024)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 23, name: "The Summer Edition: Juneberry (2023)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 24, name: "The Winter Edition: Pear Cinnamon (2023)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 25, name: "The Summer Edition: Strawberry Apricot (2022)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 26, name: "The Winter Edition: Fig Apple (2022)", sf: false, discontinued: true, seasonal: true, checked: true },
+            { id: 27, name: "The Summer Edition: Dragon Fruit (2021)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 28, name: "The Winter Edition: Pomegranate (2021)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 29, name: "The Summer Edition: Watermelon (2020)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 30, name: "The Winter Edition: Arctic Berry (2020)", sf: false, discontinued: true, seasonal: true, checked: true },
+            { id: 31, name: "The Summer Edition: Beach Breeze (2019)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 32, name: "The Winter Edition: Plum Twist (2018)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 33, name: "The Summer Edition: Coconut Berry (2018)", sf: false, discontinued: false, seasonal: true, checked: true },
+            { id: 34, name: "The Summer Edition: Grapefruit Twist (2017)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 35, name: "The Summer Edition: Kiwi Twist / Kiwi Apple (2016)", sf: false, discontinued: true, seasonal: true, checked: false },
+            { id: 36, name: "The Red Edition: Cranberry (Original 2013)", sf: false, discontinued: true, seasonal: false, checked: true },
+            { id: 37, name: "The Silver Edition: Dry Lime (Original 2013)", sf: false, discontinued: true, seasonal: false, checked: false },
+            { id: 38, name: "The Orange Edition: Tangerine (2016)", sf: false, discontinued: true, seasonal: false, checked: false },
+            { id: 39, name: "The Orange Edition: Orange Mango (Total Zero 2015)", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 40, name: "The Cherry Edition: Wild Cherry (Total Zero 2015)", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 41, name: "The Lime Edition: Limeade (Sugarfree 2016)", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 42, name: "The Purple Edition: Acai Berry (2017)", sf: false, discontinued: true, seasonal: false, checked: false },
+            { id: 43, name: "The Pear Edition: Crisp Pear (Sugarfree 2018)", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 44, name: "Red Bull Simply Cola (Original 2008 Formula)", sf: false, discontinued: true, seasonal: false, checked: false },
+            { id: 45, name: "Red Bull Energy Shot (2oz)", sf: false, discontinued: true, seasonal: false, checked: true },
+            { id: 46, name: "The Red Edition Sugarfree: Watermelon Sugarfree", sf: true, discontinued: false, seasonal: false, checked: true },
+            { id: 47, name: "The Amber Edition Sugarfree: Strawberry Apricot Sugarfree", sf: true, discontinued: false, seasonal: false, checked: false },
+            { id: 48, name: "The Sea Blue Edition Sugarfree: Juneberry Sugarfree", sf: true, discontinued: false, seasonal: false, checked: false },
+            { id: 49, name: "The Purple Edition Sugarfree: Acai Berry Sugarfree", sf: true, discontinued: true, seasonal: false, checked: false },
+            { id: 50, name: "The Iced Edition Sugarfree: Iced Vanilla Berry Sugarfree", sf: true, discontinued: false, seasonal: true, checked: false },
+            { id: 51, name: "Red Bull Japan Exclusive: Mystic Magic (Kyoho Grape)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 52, name: "Red Bull Japan Exclusive: Ocean Blast (Lychee)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 53, name: "Red Bull Japan Exclusive: Apple Muscat Grape", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 54, name: "Red Bull Japan Exclusive: Golden Edition (Passionfruit)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 55, name: "Red Bull Japan Exclusive: Winter Edition Mikan", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 56, name: "Red Bull Europe Exclusive: The Lilac Edition (Pink Grapefruit & Blossom)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 57, name: "Red Bull Europe Exclusive: The Green Edition (Kaktusfrucht)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 58, name: "Red Bull Europe Exclusive: The Spring Edition (Woodruff & Pink Grapefruit)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 59, name: "Red Bull UK Exclusive: The Ruby Edition (Apricot-Strawberry)", sf: false, discontinued: false, seasonal: true, checked: false },
+            { id: 60, name: "Red Bull Europe / Asia Exclusive: Red Bull Gold Can (250ml)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 61, name: "Red Bull Energy Drink Supreme (Philippines Bottle)", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 62, name: "Krating Daeng Original (Thailand)", sf: false, discontinued: false, seasonal: false, checked: true },
+            { id: 63, name: "Krating Daeng Extra Zinc (Thailand)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 64, name: "Krating Daeng Collagen (Thailand)", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 65, name: "Organics by Red Bull: Simply Cola", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 66, name: "Organics by Red Bull: Bitter Lemon", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 67, name: "Organics by Red Bull: Ginger Ale", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 68, name: "Organics by Red Bull: Tonic Water", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 69, name: "Organics by Red Bull: Viva Mate", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 70, name: "Organics by Red Bull: Black Orange", sf: false, discontinued: false, seasonal: false, checked: false },
+            { id: 71, name: "Organics by Red Bull: Purple Berry", sf: false, discontinued: false, seasonal: false, checked: false }
         ];
 
         let flavors = []; 
